@@ -64,6 +64,13 @@ Sources for table:
 
 ## Processor OPCodes
 ### Intel 8088
+|Instruction|Meaning|Notes|Opcode|
+|:---------:|-------|-----|------|
+|ADD|add|r/m += r/imm; r += m/imm;|0x00...0x05, 0x80/2...0x83/2|
+|AND|logical AND|r/m &= r/imm; r&= m/imm;|0x20...0x25, 0x80/4...0x83/4|
+|SUB|subtraction|r/m -= r/imm; r-= m/imm;|0x28...0x2D, 0x80...0x83/5|
+|PUSH|Push data onto the stack|*--SP = r/m;|0x06, 0x0E, 0x16, 0x1E, 0x50...0x57, 0x68, 0x6A, 0xFF/6|
+
 ### MOS Tech 6502
 |Opcode|Operation|Syntax|
 |------|---------|------|
@@ -81,7 +88,18 @@ Sources for table:
 
 ## Block Diagram
 ### Intel 8088
+#### Datapath
 ![Intel](https://i.imgur.com/RFGA4nz.gif)
+#### Memory Types
+The 8080 contains `registers` and `data segments`, which are contained in the `Bus Interface Unit,` as well as what looks like a queue to contain the next four instructions in the `Instruction Stream Byte Queue.`
+#### How the ALU and Registers Connect
+The `ALU` is connected to the registers through the `A-BUS,` which appears to also connect it to the flags and the `Bus Interface Unit.`
+#### Instruction Implementation
+Instructions seem to be stored in the `Bus Interface Unit,` which includes the `Instruction Pointer.` Then, the instructions are fed into the `ISBQ` via the `C-BUS` before being sent into the `Execution Unit Control System.`
+#### Processor Pipeline
+It seems like the processor does pipeline instructions by using the `B-BUS` and `C-BUS` to transmit instructions and information through <img src="https://render.githubusercontent.com/render/math?math=\sum">.
+#### Clock Speed
+The 8088 has a clock speed of `5-10MHz.`
 ### MOS Tech 6502
 ![MOSTECH6502](mos6502.PNG)
 ### Motorola 68000

@@ -1,0 +1,4 @@
+AND r1 r2
+OR r1 r2
+ADDI X 1 X
+COPY 0 X
