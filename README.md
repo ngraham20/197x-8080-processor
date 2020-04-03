@@ -83,6 +83,7 @@ Sources for table:
 ### Intel 8088
 ![Intel](https://i.imgur.com/RFGA4nz.gif)
 ### MOS Tech 6502
+![MOSTECH6502](mos6502.PNG)
 ### Motorola 68000
 ![Motorola](motorola.png)
 
