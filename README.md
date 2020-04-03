@@ -17,6 +17,11 @@ The `Motorola 68000` was one of the first general-purpose processors with a 32-b
 
 ## Processor Use
 ### Intel 8088
+[Sources for table](https://stackoverflow.com/questions/9130349/how-many-registers-are-there-in-8086-8088)
+Sources for table:
+- [cpuworld](http://www.cpu-world.com/Arch/8088.html)
+- [stackoverflow](https://stackoverflow.com/questions/9130349/how-many-registers-are-there-in-8086-8088)
+
 | Name | Number | Type | Use |
 |------|--------|------|-----|
 |AX||Accumulator|Arithmetic, logic, data transfer|
@@ -24,11 +29,17 @@ The `Motorola 68000` was one of the first general-purpose processors with a 32-b
 |CX||Counter|Used to control looping|
 |DX||Data|Often used to hold single-byte character data and is referenced as DH or DL. Combines with AX to form a 32-bit register for some operations (e.g. multiply)|
 |CS||Code Segment|Holds 
-|SI||Source Index||
-|DI||Destination Index||
-|BP||Base Pointer||
-|SP||Stack Pointer||
-|||||
+|SI||Source Index|Used for pointer addressing, a source in string instructions, offset address relative to DS|
+|DI||Destination Index|Pointer addressing, destination in string processing as ES:DI, offset relative to DS outside of string instructions|
+|BP||Base Pointer|Primarily for accessing parameters and locals on the stack|
+|SP||Stack Pointer|Points to the top item on the stack, address relative to SS (but not for 16-bit addressing), should point to a word, and an empty stack will have SP = FFFEh|
+|CS||Current|Points to current program|
+|DS||Definition|Points to variable definitions|
+|ES||Extra|User defined usage|
+|SS||Stack|points to the stack segment|
+|IP||Instruction Pointer|Always points to the next instruction to be executed. Offset relative to CS|
+|CF,PF,AF,ZF,SF,TF,IF,DF,OF||Flags Register|Determines the current state of the processor.|
+
 
 ### MOS Tech 6502
 | Name | Number | Use |
@@ -70,6 +81,7 @@ The `Motorola 68000` was one of the first general-purpose processors with a 32-b
 
 ## Block Diagram
 ### Intel 8088
+![Intel](https://i.imgur.com/RFGA4nz.gif)
 ### MOS Tech 6502
 ### Motorola 68000
 ![Motorola](motorola.png)
