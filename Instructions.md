@@ -1,4 +1,4 @@
-# Digital Design and Computer Architecturee
+# Digital Design and Computer Architecture
 ## fp_1: Microprocessor Language Design  
     
 ## Introduction
