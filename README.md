@@ -71,6 +71,7 @@ The `Motorola 68000` was one of the first general-purpose processors with a 32-b
 ## Block Diagram
 ### Intel 8088
 ### MOS Tech 6502
+![Mos6502](mos6502.png)
 ### Motorola 68000
 ![Motorola](motorola.png)
 
