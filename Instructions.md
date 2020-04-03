@@ -42,6 +42,12 @@ Compare the hardware architectures and assembly/machine languages for any two di
 
 ## Exercise 1: Comparing and Contrasting Processor Designs
 
+```
+Intel 8088: Research conducted by Nathaniel G.
+Motorola 68000: Research conducted by Nate W.
+MOS Tech 6520: Research conducted by Keenan Robinson
+```
+
 1. What is the application area of the  processor you chose? 
    
 2. What "registers" does your chosen processor use? Make a table similar to Table 6.1 MIPS Register Set on page 300 of your book
