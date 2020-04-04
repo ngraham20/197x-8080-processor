@@ -17,7 +17,6 @@ The `Motorola 68000` was one of the first general-purpose processors with a 32-b
 
 ## Processor Use
 ### Intel 8088
-[Sources for table](https://stackoverflow.com/questions/9130349/how-many-registers-are-there-in-8086-8088)
 Sources for table:
 - [cpuworld](http://www.cpu-world.com/Arch/8088.html)
 - [stackoverflow](https://stackoverflow.com/questions/9130349/how-many-registers-are-there-in-8086-8088)
@@ -111,16 +110,15 @@ Just another SEA-language
 ## General Purpose 16-Bit Processor
 
 ```
-I-type
-R-type
-J-type
+R-Type
+I-Type
 
 SYS
 | syscall
 
 MEM
-| lw        #
-| sw        #
+| lw        # Load Word     #
+| sw        # Store Word
 | li        #
 | si        #
 | la        #
@@ -132,25 +130,60 @@ BRANCH
 
 JMP
 | jump      #
+| tjmp      # True Jump
+| fjmp      # False Jump
 
 ALU
-| add       # 
-| addi      # 
+| add       # Add Register
+| addi      # Add Immediate
 | sub       #
 | subi      #
 | mult      #
 | multi     #
 | div       #
 | divi      #
-| slt       #
-| neq       #
-| and       #
+| slt       # Set Less Than
+| seq       # Set Equal
+| and       # Logical AND
 | or        #
 | not       #
 | xor       #
 | slr       #
 | srr       #
 ```
+
+### Registers
+| Reg | Hex | Name | Description |
+|:----|:----|:-----|-------------|
+|R0|0x00|Zero|The value 0|
+|R1|0x01|One|The value 1|
+|R2-R17|0x02-0x11|A0-A15| General purpose registers|
+|R18-R33|0x12-0x21|B0-B15| General purpose registers|
+|R34-R49|0x22-0x31|C0-C15| General purpose registers|
+|R50|0x16|IP|Instruction Pointer|
+|R51|0x17|F|Flag register|
+
+### Flag Register
+| Offset | Name | Description |
+|--------|------|-------------|
+|0x00|Test Result| Result of the most recent comparison|
+
+
+### Instruction Set
+| Instr | Opcode | Description | B1 | B2 | B3 | B4 |
+|:-----:|:------:|:------------|:--:|:--:|:--:|:--:|
+|COPY |0xFE| Copy r0 -> r1|0xFE|R0|R1|0x00|
+|TJMP|0xFD| Jump to LABEL if t0 |0xFD|0x00|ADDR:0|ADDR:1|
+|JUMP|0xFC| Jump to LABEL | 0xFC|0x00|ADDR:0|ADDR:1|
+|ADD|0x00| [r0 + r1] -> r2|0x00|R0|R1|R2|
+|ADDI|0xFF|[r0 + IMM] -> r0|0xFF|R0|IMM:0|IMM:1|
+|SLT|0x03| [r0 \< r1] -> t0| 0x03|R0|R1|0x00|
+|SEQ|0x02| [r0==r1] -> t0|0x02|R0|R1|0x00|
+|AND|0x01| [r0 && r1] - > r2|0x01|R0|R1|R2|
+
+
+
+
 
 [1]: https://en.wikipedia.org/wiki/Intel_8080
 [2]: https://en.wikipedia.org/wiki/Intel_8088
