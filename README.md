@@ -17,7 +17,6 @@ The `Motorola 68000` was one of the first general-purpose processors with a 32-b
 
 ## Processor Use
 ### Intel 8088
-[Sources for table](https://stackoverflow.com/questions/9130349/how-many-registers-are-there-in-8086-8088)
 Sources for table:
 - [cpuworld](http://www.cpu-world.com/Arch/8088.html)
 - [stackoverflow](https://stackoverflow.com/questions/9130349/how-many-registers-are-there-in-8086-8088)
