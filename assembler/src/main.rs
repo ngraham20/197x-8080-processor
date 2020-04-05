@@ -3,30 +3,34 @@ use std::io::{self, BufRead};
 use std::collections::HashMap;
 
 enum Variable {
-    uint16(u16),
+    Uint16(u16),
 }
 
 type Labels = HashMap<String, u16>;
+type Instructions = Vec<u16>;
 type Variables = HashMap<String, Variable>;
 
 
 fn main() {
     let mut variables: Variables = HashMap::new();
     let mut labels: Labels = HashMap::new();
+    let mut instructions: Instructions = Vec::new();
 
-    parsefile(&mut variables, &mut labels);
+    parsefile(&mut instructions, &mut variables, &mut labels);
 }
 
-fn parsefile(mut variables: &mut Variables, mut lables: &mut Labels) {
+fn parsefile(mut instructions: &mut Instructions, mut variables: &mut Variables, mut labels: &mut Labels) {
     // File hosts must exist in current path before this produces output
     // Consumes the iterator, returns an (Optional) String
     let lines = read_lines("test.sea");
 
     match parse_begin(&lines) {
         Ok(pos) => {
+            parse_lables_pc(&lines, &mut instructions, pos, &mut labels);
+
             parse_variables(&lines, pos, &mut variables);
 
-            parse_instructions(&lines, pos, &lables, &variables);
+            parse_instructions(&lines, pos, &labels, &variables);
         },
         Err(pos) => {
             println!("{}", pos);
@@ -39,7 +43,7 @@ fn read_lines(path: &str) -> Vec<std::result::Result<String, std::io::Error>> {
     let file = File::open(path).unwrap();
     let buffered = io::BufReader::new(file);
 
-    buffered.lines().collect()
+    buffered.lines().filter(|x| x.as_ref().unwrap() != "" && &x.as_ref().unwrap()[0..1] != "#" ).collect()
 }
 
 fn parse_begin(lines: &Vec<std::result::Result<std::string::String, std::io::Error>>) -> std::result::Result<usize, &str> {
@@ -51,9 +55,20 @@ fn parse_begin(lines: &Vec<std::result::Result<std::string::String, std::io::Err
     }
 }
 
-fn parse_lables(lines: &Vec<std::result::Result<std::string::String, std::io::Error>>, lables: &mut Labels) {
-
-    
+fn parse_lables_pc(lines: &Vec<std::result::Result<std::string::String, std::io::Error>>, instructions: &mut Instructions, pos: usize, labels: &mut Labels) {
+    for (i, line) in lines[pos+1..].iter().enumerate() {
+        if let Ok(instr) = line {
+            let upinstr = instr.to_uppercase();
+            let tokens: Vec<&str> = upinstr.split(" ").collect();
+            match &tokens[0][0..1] {
+                ":" => {
+                    instructions.push(((i + 1) * 4) as u16);
+                    labels.insert(String::from(&tokens[0][1..]), ((i + 1) * 4) as u16);
+                },
+                _ => {instructions.push((i * 4) as u16);}
+            }
+        }
+    }
 }
 
 fn parse_variables(lines: &Vec<std::result::Result<std::string::String, std::io::Error>>, pos: usize, variables: &mut Variables) {
@@ -66,7 +81,7 @@ fn parse_variables(lines: &Vec<std::result::Result<std::string::String, std::io:
                     let vname = String::from(tokens[1]);
                     let vvalue = String::from(tokens[3]);
                     let v = match &tokens[2][..] {
-                        "UINT16" => Ok(Variable::uint16(vvalue.parse::<u16>().unwrap())),
+                        "UINT16" => Ok(Variable::Uint16(vvalue.parse::<u16>().unwrap())),
                         _ => Err("Invalid variable type, you dingus.")
                     };
 
@@ -79,7 +94,7 @@ fn parse_variables(lines: &Vec<std::result::Result<std::string::String, std::io:
     }
 }
 
-fn parse_instructions(lines: &Vec<std::result::Result<std::string::String, std::io::Error>>, pos: usize, lables: &Labels, variables: &Variables) {
+fn parse_instructions(lines: &Vec<std::result::Result<std::string::String, std::io::Error>>, pos: usize, labels: &Labels, variables: &Variables) {
     for line in &lines[pos+1..] {
         let mut instcode: u32 = 0x00;
         if let Ok(instr) = line {
@@ -152,8 +167,8 @@ fn parse_register(token: &str) -> std::result::Result<u8, &str> {
 
     match (register, offset) {
         (Ok(r), Ok(o)) => Ok(r + o),
-        (Ok(r), Err(o)) => Err(o),
-        (Err(r), Ok(o)) => Err(r),
+        (Ok(_), Err(o)) => Err(o),
+        (Err(r), Ok(_)) => Err(r),
         _ => Err("This whole token is shot, you monster.")
     }
 }
@@ -163,7 +178,7 @@ fn parse_immediate<'a>(token: &'a str, variables: &'a Variables) -> std::result:
     let result: Result<u16, &str>;
     if let Some(var) = variables.get(token) {
         result = match var {
-            Variable::uint16(val) => Ok(*val),
+            Variable::Uint16(val) => Ok(*val),
             _ => Err("No,  you noob")
         };
     } else {
