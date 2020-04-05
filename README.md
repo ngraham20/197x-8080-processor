@@ -132,8 +132,9 @@ SYS
 | syscall
 
 MEM
-| lw        # Load Word     #
-| sw        # Store Word
+| copy      # 
+| lw        #
+| sw        #
 | li        #
 | si        #
 | la        #

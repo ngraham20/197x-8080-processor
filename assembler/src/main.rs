@@ -55,7 +55,6 @@ fn parse_begin(lines: &Vec<std::result::Result<std::string::String, std::io::Err
 
 fn parse_lables_pc(lines: &Vec<std::result::Result<std::string::String, std::io::Error>>, pos: usize, labels: &mut Labels) {
     let mut pending_labels: VecDeque<String> = VecDeque::new();
-    let mut instructions = Vec::<u16>::new();
     for (i, line) in lines[pos+1..].iter().enumerate() {
         if let Ok(instr) = line {
             let upinstr = instr.to_uppercase();
@@ -66,7 +65,6 @@ fn parse_lables_pc(lines: &Vec<std::result::Result<std::string::String, std::io:
                 },
                 _ => {
                     let pc = ((i - labels.len() - pending_labels.len()) * 4) as u16;
-                    instructions.push(pc);
                     while let Some(label) = pending_labels.pop_front() {
                         labels.insert(label, pc);
                     }
