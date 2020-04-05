@@ -1,0 +1,8 @@
+COPY R0 A0
+COPY r0 a1
+ADDI a0 35
+ADDI a1 30
+ADDI a1 5
+SEQ a0 a1
+AND r0 r1 r2
+COPY a1 a3
