@@ -76,7 +76,7 @@ fn parse_lables_pc(lines: &Vec<std::result::Result<std::string::String, std::io:
     }
 }
 
-fn parse_variables(lines: &Vec<std::result::Result<std::string::String, std::io::Error>>, pos: usize, variables: &mut Variables) {
+fn parse_variables(lines: & Vec<std::result::Result<std::string::String, std::io::Error>>, pos: usize, variables: &mut Variables) {
     for line in &lines[..pos] {
         if let Ok(instr) = line {
             let upinstr = instr.to_uppercase();
@@ -86,7 +86,10 @@ fn parse_variables(lines: &Vec<std::result::Result<std::string::String, std::io:
                     let vname = String::from(tokens[1]);
                     let vvalue = String::from(tokens[3]);
                     let v = match &tokens[2][..] {
-                        "UINT16" => Ok(Variable::Uint16(vvalue.parse::<u16>().unwrap())),
+                        "UINT16" => match vvalue.parse::<u16>() {
+                            Ok(val) => Ok(Variable::Uint16(val)),
+                            Err(_) => Err("Invalid uint16, you dingus."),
+                        },
                         _ => Err("Invalid variable type, you dingus.")
                     };
 
@@ -168,15 +171,15 @@ fn parse_register(token: &str) -> std::result::Result<u8, &str> {
         _ =>   Err("Invalid register, you scrub.")
     };
 
-    let offset = match bytetoken[1] as char {
-        '0' => Ok(0x00),
-        '1' => Ok(0x01),
-        '2' => Ok(0x02),
-        '3' => Ok(0x03),
-        '4' => Ok(0x04),
-        '5' => Ok(0x05),
-        '6' => Ok(0x06),
-        '7' => Ok(0x06),
+    let offset = match bytetoken[1..].into_iter().map(|x| *x as char).collect::<String>().as_str() {
+        "0" => Ok(0x00),
+        "1" => Ok(0x01),
+        "2" => Ok(0x02),
+        "3" => Ok(0x03),
+        "4" => Ok(0x04),
+        "5" => Ok(0x05),
+        "6" => Ok(0x06),
+        "7" => Ok(0x06),
         _ => Err("Invalid offset, you scrub.")
     };
 
@@ -184,7 +187,7 @@ fn parse_register(token: &str) -> std::result::Result<u8, &str> {
         (Ok(r), Ok(o)) => Ok(r + o),
         (Ok(_), Err(o)) => Err(o),
         (Err(r), Ok(_)) => Err(r),
-        _ => Err("This whole token is shot, you monster.")
+        _ => Err("This whole register token is shot, you monster.")
     }
 }
 
@@ -194,7 +197,6 @@ fn parse_immediate<'a>(token: &'a str, variables: &'a Variables, labels: &'a Lab
     if let Some(var) = variables.get(token) {
         result = match var {
             Variable::Uint16(val) => Ok(*val),
-            _ => Err("No,  you noob")
         };
     } else if let Some(label) = labels.get(token) {
         result = Ok(*label);
