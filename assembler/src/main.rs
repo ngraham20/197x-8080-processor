@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io::{self, BufRead};
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 
 enum Variable {
     Uint16(u16),
@@ -56,16 +56,22 @@ fn parse_begin(lines: &Vec<std::result::Result<std::string::String, std::io::Err
 }
 
 fn parse_lables_pc(lines: &Vec<std::result::Result<std::string::String, std::io::Error>>, instructions: &mut Instructions, pos: usize, labels: &mut Labels) {
+    let mut pending_labels: VecDeque<String> = VecDeque::new();
     for (i, line) in lines[pos+1..].iter().enumerate() {
         if let Ok(instr) = line {
             let upinstr = instr.to_uppercase();
             let tokens: Vec<&str> = upinstr.split(" ").collect();
             match &tokens[0][0..1] {
                 ":" => {
-                    instructions.push(((i + 1) * 4) as u16);
-                    labels.insert(String::from(&tokens[0][1..]), ((i + 1) * 4) as u16);
+                    pending_labels.push_back(String::from(&tokens[0][1..]));
                 },
-                _ => {instructions.push((i * 4) as u16);}
+                _ => {
+                    let pc = ((i - labels.len() - pending_labels.len()) * 4) as u16;
+                    instructions.push(pc);
+                    while let Some(label) = pending_labels.pop_front() {
+                        labels.insert(label, pc);
+                    }
+                }
             }
         }
     }
@@ -95,7 +101,7 @@ fn parse_variables(lines: &Vec<std::result::Result<std::string::String, std::io:
 }
 
 fn parse_instructions(lines: &Vec<std::result::Result<std::string::String, std::io::Error>>, pos: usize, labels: &Labels, variables: &Variables) {
-    for line in &lines[pos+1..] {
+    for line in lines[pos+1..].iter().filter(|x| &x.as_ref().unwrap()[0..1] != ":" ) {
         let mut instcode: u32 = 0x00;
         if let Ok(instr) = line {
             let upinstr = instr.to_uppercase();

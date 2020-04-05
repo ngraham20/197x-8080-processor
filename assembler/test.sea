@@ -5,7 +5,13 @@ VAR THEIRVAR UINT16 45
 
 BEGIN
 # This is a comment
-:MAIN
+:0
+:1
+:2
+:3
+:4
+:5
+:6
 COPY R0 A0
 COPY r0 a1
 ADDI A0 MYVAR
