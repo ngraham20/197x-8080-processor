@@ -104,6 +104,21 @@ The 8088 has a clock speed of `5-10MHz.`
 ### Motorola 68000
 ![Motorola](motorola.png)
 
+#### Memory Types
+The 68000 contains 32-bit registers and a 32-bit internal data bus. It also has a non-segmented 24-bit address bus.
+
+#### How the ALU and Registers Connect
+The ALU is connected to the registers by the Internal Data Bus.
+
+#### Instruction Implementation
+Instructions seem to be stored in the Cache Holding Register, before being fed down the Instruction Pipe to the Sequencer and Control.
+
+#### Processor Pipeline
+The processor explicitly pipelines instructions, as outlined in the diagram.
+
+#### Clock Speed
+The 68000's clock speed is 4-8 MHz.
+
 ## Slightly Esoteric Assembly Language
 Just another SEA-language
 
