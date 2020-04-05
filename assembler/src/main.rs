@@ -7,26 +7,24 @@ enum Variable {
 }
 
 type Labels = HashMap<String, u16>;
-type Instructions = Vec<u16>;
 type Variables = HashMap<String, Variable>;
 
 
 fn main() {
     let mut variables: Variables = HashMap::new();
     let mut labels: Labels = HashMap::new();
-    let mut instructions: Instructions = Vec::new();
 
-    parsefile(&mut instructions, &mut variables, &mut labels);
+    parsefile(&mut variables, &mut labels);
 }
 
-fn parsefile(mut instructions: &mut Instructions, mut variables: &mut Variables, mut labels: &mut Labels) {
+fn parsefile(mut variables: &mut Variables, mut labels: &mut Labels) {
     // File hosts must exist in current path before this produces output
     // Consumes the iterator, returns an (Optional) String
     let lines = read_lines("test.sea");
 
     match parse_begin(&lines) {
         Ok(pos) => {
-            parse_lables_pc(&lines, &mut instructions, pos, &mut labels);
+            parse_lables_pc(&lines, pos, &mut labels);
 
             parse_variables(&lines, pos, &mut variables);
 
@@ -55,8 +53,9 @@ fn parse_begin(lines: &Vec<std::result::Result<std::string::String, std::io::Err
     }
 }
 
-fn parse_lables_pc(lines: &Vec<std::result::Result<std::string::String, std::io::Error>>, instructions: &mut Instructions, pos: usize, labels: &mut Labels) {
+fn parse_lables_pc(lines: &Vec<std::result::Result<std::string::String, std::io::Error>>, pos: usize, labels: &mut Labels) {
     let mut pending_labels: VecDeque<String> = VecDeque::new();
+    let mut instructions = Vec::<u16>::new();
     for (i, line) in lines[pos+1..].iter().enumerate() {
         if let Ok(instr) = line {
             let upinstr = instr.to_uppercase();
@@ -113,7 +112,17 @@ fn parse_instructions(lines: &Vec<std::result::Result<std::string::String, std::
                     instcode += parse_register(&tokens[2]).unwrap() as u32 * u32::pow(16, 2);
                 },
                 // "TJMP"  => {Ok(0xFD)},
+                "TJMP" => {
+                    // opcode: 0xFD
+                    // test result flag: 0x17
+                    instcode += 0xFD170000;
+                    instcode += parse_immediate(&tokens[1], &variables, &labels).unwrap() as u32;
+                }
                 // "JUMP" => {Ok(0xFC)},
+                "JUMP" => {
+                    instcode += 0xFC000000;
+                    instcode += parse_immediate(&tokens[1], &variables, &labels).unwrap() as u32;
+                }
                 "ADD" => {
                     // instruction code is 0x00
                     instcode += parse_register(&tokens[1]).unwrap() as u32 * u32::pow(16, 4);
@@ -123,7 +132,7 @@ fn parse_instructions(lines: &Vec<std::result::Result<std::string::String, std::
                 "ADDI" => {
                     instcode += 0xFF000000;
                     instcode += parse_register(&tokens[1]).unwrap() as u32 * u32::pow(16, 4);
-                    instcode += parse_immediate(&tokens[2], &variables).unwrap() as u32;
+                    instcode += parse_immediate(&tokens[2], &variables, &labels).unwrap() as u32;
                 },
                 "SLT" => {
                     instcode +=  0x03000000;
@@ -179,7 +188,7 @@ fn parse_register(token: &str) -> std::result::Result<u8, &str> {
     }
 }
 
-fn parse_immediate<'a>(token: &'a str, variables: &'a Variables) -> std::result::Result<u16, &'a str> {
+fn parse_immediate<'a>(token: &'a str, variables: &'a Variables, labels: &'a Labels) -> std::result::Result<u16, &'a str> {
 
     let result: Result<u16, &str>;
     if let Some(var) = variables.get(token) {
@@ -187,6 +196,8 @@ fn parse_immediate<'a>(token: &'a str, variables: &'a Variables) -> std::result:
             Variable::Uint16(val) => Ok(*val),
             _ => Err("No,  you noob")
         };
+    } else if let Some(label) = labels.get(token) {
+        result = Ok(*label);
     } else {
         result = match token.parse::<u16>() {
             Ok(ok) => Ok(ok),
@@ -198,5 +209,4 @@ fn parse_immediate<'a>(token: &'a str, variables: &'a Variables) -> std::result:
         Ok(ok) => Ok(ok),
         Err(_) => Err("Invalid immediate value, you scrub.")
     }
-
 }
