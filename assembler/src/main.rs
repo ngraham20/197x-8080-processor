@@ -86,17 +86,14 @@ fn parse_variables(lines: & Vec<std::result::Result<std::string::String, std::io
                     let vname = String::from(tokens[1]);
                     let vvalue = String::from(tokens[3]);
                     let v = match &tokens[2][..] {
-                        "UINT16" => match vvalue.parse::<u16>() {
-                            Ok(val) => Ok(Variable::Uint16(val)),
-                            Err(_) => Err("Invalid uint16, you dingus."),
-                        },
+                        "UINT16" => Ok(Variable::Uint16(vvalue.parse::<u16>().unwrap())),
                         _ => Err("Invalid variable type, you dingus.")
                     };
 
                     variables.insert(vname, v.unwrap());
                     
                 }
-                _ => {}
+                _ => {Err("Invalid variable declaration, you dingus.").unwrap()}
             }
         }
     }
