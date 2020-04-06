@@ -3,6 +3,7 @@ use std::io::{self, BufRead};
 use std::collections::{HashMap, VecDeque};
 
 enum Variable {
+    Register(String),
     Uint16(u16),
 }
 
@@ -85,6 +86,7 @@ fn parse_variables(lines: & Vec<std::result::Result<std::string::String, std::io
                     let vvalue = String::from(tokens[3]);
                     let v = match &tokens[2][..] {
                         "UINT16" => Ok(Variable::Uint16(vvalue.parse::<u16>().unwrap())),
+                        "REG" => Ok(Variable::Register(vvalue)),
                         _ => Err("Invalid variable type, you dingus.")
                     };
 
@@ -106,8 +108,8 @@ fn parse_instructions(lines: &Vec<std::result::Result<std::string::String, std::
             match &tokens[0][..] {
                 "COPY" => {
                     instcode += 0xFE000000;
-                    instcode += parse_register(&tokens[1]).unwrap() as u32 * u32::pow(16, 4);
-                    instcode += parse_register(&tokens[2]).unwrap() as u32 * u32::pow(16, 2);
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
                 },
                 // "TJMP"  => {Ok(0xFD)},
                 "TJMP" => {
@@ -123,31 +125,31 @@ fn parse_instructions(lines: &Vec<std::result::Result<std::string::String, std::
                 }
                 "ADD" => {
                     // instruction code is 0x00
-                    instcode += parse_register(&tokens[1]).unwrap() as u32 * u32::pow(16, 4);
-                    instcode += parse_register(&tokens[2]).unwrap() as u32 * u32::pow(16, 2);
-                    instcode += parse_register(&tokens[3]).unwrap() as u32;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
+                    instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
                 },
                 "ADDI" => {
                     instcode += 0xFF000000;
-                    instcode += parse_register(&tokens[1]).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
                     instcode += parse_immediate(&tokens[2], &variables, &labels).unwrap() as u32;
                 },
                 "SLT" => {
                     instcode +=  0x03000000;
-                    instcode+= parse_register(&tokens[1]).unwrap() as u32 * u32::pow(16, 4);
-                    instcode+= parse_register(&tokens[2]).unwrap() as u32 * u32::pow(16, 2);
+                    instcode+= parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode+= parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
                 
                 },
                  "SEQ" => {
                      instcode += 0x02000000;
-                     instcode+= parse_register(&tokens[1]).unwrap() as u32 * u32::pow(16, 4);
-                     instcode+= parse_register(&tokens[2]).unwrap() as u32 * u32::pow(16, 2);
+                     instcode+= parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                     instcode+= parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
                     },
                  "AND" => {
                     instcode += 0x01000000;
-                    instcode += parse_register(&tokens[1]).unwrap() as u32 * u32::pow(16,4);
-                    instcode += parse_register(&tokens[2]).unwrap() as u32 * u32::pow(16,2);
-                    instcode += parse_register(&tokens[3]).unwrap() as u32;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16,4);
+                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16,2);
+                    instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
                 },
                 _ => {}
             };
@@ -156,9 +158,17 @@ fn parse_instructions(lines: &Vec<std::result::Result<std::string::String, std::
     }
 }
 
-fn parse_register(token: &str) -> std::result::Result<u8, &str> {
-    let bytetoken = token.as_bytes();
-    let register = match bytetoken[0] as char {
+fn parse_register<'a>(token: &'a str, variables: &'a Variables) -> std::result::Result<u8, &'a str> {
+    let bytetoken: Result<&[u8], &str>;
+    if let Some(var) = variables.get(token) {
+        bytetoken = match var {
+            Variable::Register(val) => Ok(val.as_bytes()),
+            _ => Err("Variable specified is not a register, you scrub."),
+        };
+    } else {
+        bytetoken = Ok(token.as_bytes());
+    }
+    let register = match bytetoken.unwrap()[0] as char {
         'R' => Ok(0x00),
         'A' => Ok(0x02),
         'B' => Ok(0x18),
@@ -166,7 +176,7 @@ fn parse_register(token: &str) -> std::result::Result<u8, &str> {
         _ =>   Err("Invalid register, you scrub.")
     };
 
-    let offset = match bytetoken[1..].into_iter().map(|x| *x as char).collect::<String>().as_str() {
+    let offset = match bytetoken.unwrap()[1..].into_iter().map(|x| *x as char).collect::<String>().as_str() {
         "0" => Ok(0x00),
         "1" => Ok(0x01),
         "2" => Ok(0x02),
@@ -187,11 +197,11 @@ fn parse_register(token: &str) -> std::result::Result<u8, &str> {
 }
 
 fn parse_immediate<'a>(token: &'a str, variables: &'a Variables, labels: &'a Labels) -> std::result::Result<u16, &'a str> {
-
     let result: Result<u16, &str>;
     if let Some(var) = variables.get(token) {
         result = match var {
             Variable::Uint16(val) => Ok(*val),
+            _ => Err("Variable specified is not a Uint16, you scrub.")
         };
     } else if let Some(label) = labels.get(token) {
         result = Ok(*label);
@@ -202,8 +212,5 @@ fn parse_immediate<'a>(token: &'a str, variables: &'a Variables, labels: &'a Lab
         };
     }
 
-    match result {
-        Ok(ok) => Ok(ok),
-        Err(_) => Err("Invalid immediate value, you scrub.")
-    }
+    result
 }
