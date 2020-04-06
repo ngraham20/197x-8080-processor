@@ -108,7 +108,7 @@ The Mos Tech 6502 has several 8-bit registers, including an accumulator register
 ### How the ALU and Registers Connect
 The ALU is connected to the registers via the internal data bus
 
-###Instruction Implementation
+### Instruction Implementation
 56 Instructions. 
 
 ### Processor Pipeline
