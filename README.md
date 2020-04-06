@@ -101,6 +101,22 @@ It seems like the processor does pipeline instructions by using the `B-BUS` and 
 The 8088 has a clock speed of `5-10MHz.`
 ### MOS Tech 6502
 ![MOSTECH6502](mos6502.PNG)
+
+### Memory Types
+The Mos Tech 6502 has several 8-bit registers, including an accumulator register that stores the resluts of arithmetic and logic operations as well as having 2 8-bit general purpose registers. 
+
+### How the ALU and Registers Connect
+The ALU is connected to the registers via the internal data bus
+
+###Instruction Implementation
+56 Instructions. 
+
+### Processor Pipeline
+The processor status register contains several status flags that are either controlled by the program or the CPU
+
+### Clock Speed
+The MOS TECH 6502 came in 1,2, and 3 MHz
+
 ### Motorola 68000
 ![Motorola](motorola.png)
 
