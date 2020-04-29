@@ -5,7 +5,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.all; 
 use IEEE.STD_LOGIC_UNSIGNED.all;
 
-entity dp is -- top-level design for testing
+entity dp is
   port(
     clk in : std_logic;
     reset in : std_logic;
@@ -30,8 +30,6 @@ entity dp is -- top-level design for testing
     opcode out : std_logic_vector(7 downto 0)
   );
 end;
-
-
 
 architecture dp of dp is
 
@@ -128,24 +126,6 @@ begin
         s       => muxMemWSel,
         y       => muxMemWBus
     );
-    -- muxRegA0:   mux2 generic map(16) port map(
-    --     d0      => memibufBus,
-    --     d1      =>
-    --     s       => 
-    --     y       =>
-    -- );
-    -- muxRegA1:   mux2 generic map(16) port map(
-    --     d0      => memibufBus,
-    --     d1      =>
-    --     s       =>
-    --     y       =>
-    -- );
-    -- muxRegAW:   mux2 generic map(16) port map(
-    --     d0      => memibufBus,
-    --     d1      => 
-    --     s       =>
-    --     y       => muxRegAWBus
-    -- );
     muxRegWD:   mux2 generic map(16) port map(
         d0      => memdbufBus,
         d1      => aludbufBus,
@@ -166,7 +146,6 @@ begin
         s       => muxAluBSel,
         y       => muxAluBBus
     );
-
     pc:         buffer generic map(16) port map(
         clk         => clk,
         w_enable    => pcWEn,
