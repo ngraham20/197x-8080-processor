@@ -80,86 +80,128 @@ port(a, b :     in STD_LOGIC_VECTOR(15 downto 0);
       );
 end component;
 
-signal memR,
-    regR0,
-    regR1,
-    aluY : std_logic_vector(15 downto 0); -- out of components
-    
-signal memibuf,
-    memdbuf,
-    regR0dbuf,
-    regR1dbuf,
-    aludbuf : std_logic_vector(15 downto 0); -- out of buffers
+signal memRBus,
+    regR0Bus,
+    regR1Bus,
+    aluYBus : std_logic_vector(15 downto 0); -- out of components
 
-signal muxPC
-    muxMemA,
-    muxMemW, 
-    muxRegA0,
-    muxRegA1, 
-    muxRegAW, 
-    muxRegWD,
-    muxAluA, 
-    muxAluB : std_logic_vector(15 downto 0); -- out of muxes
+signal PCBus,
+    memibufBus,
+    memdbufBus,
+    regR0dbufBus,
+    regR1dbufBus,
+    aludbufBus : std_logic_vector(15 downto 0); -- out of buffers
 
--- signal memibuf_muxregA0,
---     memibuf_muxRegA1,
---     memibuf_muxRegAW,
---     memibuf_muxPC,
---     memibuf_muxMemA,
---     memibuf_muxAluB,
---     memdbuf_muxRegWD,
---     regR0dbuf_muxMemWD,
---     regR0dbuf_muxAluA,
---     regR1dbuf_muxAluB,
---     aludbuf_muxPC,
---     aludbuf_muxMemWD,
---     aludbuf_muxRegWD : std_logic_vector(15 downto 0); -- into muxes
-
--- signal muxPC_PC,
---     memR_ibuf,
---     memR_dbuf,
---     regR0_regR0dbuf,
---     regR1_regR1dbuf,
---     aluY_aludbuf : std_logic_vector(15 downto 0); -- into buffer
-
--- signal muxMemA_memA,
---     muxMemW_memW, 
---     muxRegA0_regA0,
---     muxRegA1_regA1, 
---     muxRegAW_regAW, 
---     muxRegWD_regWD,
---     muxAluA_aluA, 
---     muxAluB_aluB : std_logic_vector(15 downto 0); -- into components
+signal muxPCBus
+    muxMemABus,
+    muxMemWBus, 
+    muxRegA0Bus,
+    muxRegA1Bus, 
+    muxRegAWBus, 
+    muxRegWDBus,
+    muxAluABus, 
+    muxAluBBus : std_logic_vector(15 downto 0); -- out of muxes
 
 signal alumuxBin4 : std_logic_vector(15 downto 0) := "0000000000000100"; -- 4
+signal low : std_logic_vector(15 downto 0) := "0000000000000000"; -- 0
 
 begin
-    mem0:       mem generic map(16) port map ();
+    mem0:       mem generic map(32) port map ();
     reg0:       reg port map();
     alu0:       alu port map();
 
-    muxPC:      mux2 generic map(16) port map();
-    muxMemA:    mux2 generic map(16) port map();
-    muxMemW:    mux2 generic map(16) port map();
-    muxRegA0:   mux2 generic map(16) port map();
-    muxRegA1:   mux2 generic map(16) port map();
-    muxRegAW:   mux2 generic map(16) port map();
-    muxRegWD:   mux2 generic map(16) port map();
-    muxAluA:    mux2 generic map(16) port map();
-    muxAluB:    mux2 generic map(16) port map();
+    muxPC:      mux2 generic map(16) port map(
+        d0      => aludbufBus,
+        d1      => memibufBus,
+        s       => muxPCSel,
+        y       => muxPCBus
+    );
+    muxMemA:    mux2 generic map(16) port map(
+        d0      => PCBus,
+        d1      => memibufBus,
+        s       => muxMemASel,
+        y       => muxMemABus
+    );
+    muxMemW:    mux2 generic map(16) port map(
+        d0      => memibufBus,
+        d1      => regR0dbufBus,
+        s       => muxMemWSel,
+        y       => muxMemWBus
+    );
+    -- muxRegA0:   mux2 generic map(16) port map(
+    --     d0      => memibufBus,
+    --     d1      =>
+    --     s       => 
+    --     y       =>
+    -- );
+    -- muxRegA1:   mux2 generic map(16) port map(
+    --     d0      => memibufBus,
+    --     d1      =>
+    --     s       =>
+    --     y       =>
+    -- );
+    -- muxRegAW:   mux2 generic map(16) port map(
+    --     d0      => memibufBus,
+    --     d1      => 
+    --     s       =>
+    --     y       => muxRegAWBus
+    -- );
+    muxRegWD:   mux2 generic map(16) port map(
+        d0      => memdbufBus,
+        d1      => aludbufBus,
+        s       => muxRegWDSel,
+        y       => muxregWDBus
+    );
+    muxAluA:    mux2 generic map(16) port map(
+        d0      => regR0dbufBus,
+        d1      => memibufBus,                          --TODO: bit stuff
+        s       => muxAluASel,
+        y       => muxAluABus
+    );
+    muxAluB:    mux4 generic map(16) port map(
+        d0      => regR1dbufBus,
+        d1      => memibufBus,                          --TODO: bit stuff
+        d2      => aluMuxBIn4,
+        d3      => low,
+        s       => muxAluBSel,
+        y       => muxAluBBus
+    );
 
     pc:         buffer generic map(16) port map(
         clk         => clk,
         w_enable    => pcWEn,
-        data_in     => muxPC_PC,
-        data_out    => 
+        data_in     => muxPCBus,
+        data_out    => PCBus
     );
-    memibuf:    buffer generic map(16) port map();
-    memdbuf:    buffer generic map(16) port map();
-    regR0dbuf:  buffer generic map(16) port map();
-    regR1dbuf:  buffer generic map(16) port map();
-    aludbuf:    buffer generic map(16) port map();
-
-
+    memibuf:    buffer generic map(16) port map(
+        clk         => clk,
+        w_enable    => memibufWEn,
+        data_in     => memRBus,
+        data_out    => memibufBus
+    );
+    memdbuf:    buffer generic map(16) port map(
+        clk         => clk,
+        w_enable    => memdbufWEn,
+        data_in     => memRBus,
+        data_out    => memdbufBus
+    );
+    regR0dbuf:  buffer generic map(16) port map(
+        clk         => clk,
+        w_enable    => pcWEn,
+        data_in     => regR0Bus,
+        data_out    => regR0dbufBus,
+    );
+    regR1dbuf:  buffer generic map(16) port map(
+        clk         => clk,
+        w_enable    => regR1dbufWEn,
+        data_in     => regR1Bus,
+        data_out    => regR1dbufBus
+    );
+    aludbuf:    buffer generic map(16) port map(
+        clk         => clk,
+        w_enable    => pcWEn,
+        data_in     => aluYBus,
+        data_out    => aludbufBus
+    );
 
 end dp;
