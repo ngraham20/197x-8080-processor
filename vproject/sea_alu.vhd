@@ -10,7 +10,7 @@ entity ALU is -- top-level design for testing
       a, b : in STD_LOGIC_VECTOR(15 downto 0);
       y : out STD_LOGIC_VECTOR(15 downto 0);
       aluop : in STD_LOGIC_VECTOR(3 downto 0);
-      clk : STD_LOGIC;
+      clk : STD_LOGIC
 	   );
 end;
 
@@ -29,12 +29,12 @@ architecture alu of alu is
        
     
     -- Read flag offset bit
-    flag <= (a srl b) and "0000000000000001";
+    -- TODO flag <= (a srl b) and "0000000000000001";
 
     -- SLT
     process (a, b, clk)
     begin
-        if a < b
+        if a < b then
             slt <= "0000000000000001";
         else
             slt <= "0000000000000000";
@@ -44,7 +44,7 @@ architecture alu of alu is
     -- SEQ
     process (a, b, clk)
     begin
-        if a = b
+        if a = b then
             seq <= "0000000000000001";
         else
             seq <= "0000000000000000";
@@ -54,19 +54,18 @@ architecture alu of alu is
     -- RESULT
     process (a, b, aluop, clk)
     begin
-        case aluop
-        "0000"  => y <= a + b;
-        "0001"  => y <= a - b;
-        "0010"  => y <= a * b;
-        "0011"  => y <= a / b;
-        "0100"  => y <= a and b;
-        "0101"  => y <= a or b;
-        "0110"  => y <= a xor b;
-        "0111"  => y <= a sll b;
-        "1000"  => y <= a srl b;
-        "1001"  => y <= flag; -- TODO this may not function as intended
-        others      => y <= -42069;
-        end;
+        case aluop is
+        when "0000"  => y <= a + b;
+        when "0001"  => y <= a - b;
+        when "0010"  => y <= a * b;
+        -- when "0011"  => y <= a / b;
+        when "0100"  => y <= a and b;
+        when "0101"  => y <= a or b;
+        when "0110"  => y <= a xor b;
+        -- TODO when "0111"  => y <= a sll b;
+        -- TODO when "1000"  => y <= a srl b;
+        when others  => y <= flag; -- TODO this may not function as intended
+        end case;
     end process;
 	  
     end alu;

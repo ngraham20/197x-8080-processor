@@ -10,12 +10,13 @@ end;
 
 architecture behave of mux4 is
 begin
-    process (d0, d1, d2, d3, s, y)
+    process (d0, d1, d2, d3, s)
     begin
-        case s
-        "00" => y <= d0;
-        "01" => y <= d1;
-        "10" => y <= d2;
-        "11" => y <= d3;
+        case s is
+        when "00" => y <= d0;
+        when "01" => y <= d1;
+        when "10" => y <= d2;
+        when others => y <= d3;
+        end case;
     end process;
 end;
