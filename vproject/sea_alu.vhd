@@ -64,6 +64,8 @@ architecture alu of alu is
         when "0110"  => y <= a xor b;
         -- TODO when "0111"  => y <= a sll b;
         -- TODO when "1000"  => y <= a srl b;
+        when "1001"  => y <= slt;
+        when "1010"  => y <= seq;
         when others  => y <= flag; -- TODO this may not function as intended
         end case;
     end process;
