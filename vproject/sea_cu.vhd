@@ -60,7 +60,6 @@ architecture cu of cu is
 
 signal controls : std_logic_vector(23 downto 0);
 signal flagAddr : std_logic_vector(15 downto 0);
-signal aluOp, flagOffset : std_logic_vector(3 downto 0);
 
 begin
 
@@ -89,32 +88,32 @@ begin
       when "11111010" => controls <= "000000000000000000000000"; -- SW
       when "11111001" => controls <= "000000000000000000000000"; -- LI
       when "11111000" => controls <= "000000000000000000000000"; -- SI
-      //when others => controls <= "000000000000000000000000"; -- JUMP is 11111100 
+      when others => controls <= "000000000000000000000000"; -- JUMP is 11111100 
     end case;
 end process;
 
-mem0WEn => controls(23);
-reg0WEn => controls(22);
-alu0WEn => controls(21);
-muxPCSel => controls(20);
+mem0WEn <= controls(23);
+reg0WEn <= controls(22);
+alu0WEn <= controls(21);
+muxPCSel <= controls(20);
 
-muxMemASel => controls(19);
-muxMemWSel => controls(18);
-muxRegA0Sel => controls(17);
-muxRegA1Sel => controls(16);
+muxMemASel <= controls(19);
+muxMemWSel <= controls(18);
+muxRegA0Sel <= controls(17);
+muxRegA1Sel <= controls(16);
 
-muxRegAWSel => controls(15);
-muxRegWDSel => controls(14);
-muxAluASel => controls(13);
-pcWEn => controls(12);
+muxRegAWSel <= controls(15);
+muxRegWDSel <= controls(14);
+muxAluASel <= controls(13);
+pcWEn <= controls(12);
 
-memibufWEn => controls(11);
-memdbufWEn => controls(10);
-regR0dbufWEn => controls(9);
-regR1dbufWEn => controls(8);
+memibufWEn <= controls(11);
+memdbufWEn <= controls(10);
+regR0dbufWEn <= controls(9);
+regR1dbufWEn <= controls(8);
 
-flagOffset => controls(7 downto 4);
+flagOffset <= controls(7 downto 4);
 
-aluOp => controls(3 downto 0);
+aluOp <= controls(3 downto 0);
 
 end cu;
