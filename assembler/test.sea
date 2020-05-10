@@ -4,24 +4,6 @@ VAR theb UINT16 22
 
 BEGIN
 
-ADDI r0 thea
-ADDI r1 theb
-ADD  r2 r0 r1
-
-# This is a comment
-
-#COPY r0 THEREG
-#COPY r0 a1
-#ADDI A0 MYVAR
-#ADDI a0 35
-#ADDI a1 30
-
-#:MARK
-#:0
-#:1
-#:2
-#ADDI a1 5
-#SEQ a0 a1
-#AND r0 r1 r2
-#COPY a1 a3
-#JUMP MARK
+ADDI r3 thea
+ADDI r4 theb
+ADD r5 r3 r4
