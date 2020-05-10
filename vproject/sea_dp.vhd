@@ -56,7 +56,7 @@ port(d0, d1, d2, d3 :   in std_logic_vector(width-1 downto 0);
     y :                 out std_logic_Vector(width-1 downto 0));
 end component;
 
-component reg is
+component regfile is
 port(clk:       in  STD_LOGIC;
 wEn:            in  STD_LOGIC;
 ra0, ra1, wa:   in  STD_LOGIC_VECTOR(15 downto 0);
