@@ -6,7 +6,6 @@ use IEEE.STD_LOGIC_1164.all;
 use IEEE.STD_LOGIC_UNSIGNED.all;
 
 entity sea_top is -- top-level design for testing
-  port();
 end;
 
 ---------------------------------------------------------
@@ -16,29 +15,28 @@ end;
 architecture sea_top of sea_top is
 
   component cu is
-    port(
-          mem0WEn,
-          reg0WEn,
-          alu0WEn,
-          muxPCSel,
-          muxMemASel,
-          muxMemWSel,
-          muxRegA0Sel,
-          muxRegA1Sel,
-          muxRegAWSel,
-          muxRegWDSel,
-          muxAluASel,
-          pcWEn,
-          memibufWEn,
-          memdbufWEn,
-          regR0dbufWEn,
-          regR1dbufWEn : out std_logic;
-          aluOp, flagOffset : out std_logic_vector(3 downto 0);
-          muxAluBSel : out std_logic_vector(1 downto 0);
-          clk : in std_logic;
-          reset : in std_logic;
-          opcode : in std_logic_vector(15 downto 0)
-    );
+   port(
+        mem0WEn,
+        reg0WEn,
+        alu0WEn,
+        muxPCSel,
+        muxMemASel,
+        muxMemWSel,
+        muxRegA0Sel,
+        muxRegA1Sel,
+        muxRegAWSel,
+        muxRegWDSel,
+        pcWEn,
+        memibufWEn,
+        memdbufWEn,
+        regR0dbufWEn,
+        regR1dbufWEn : out std_logic;
+        aluOp, flagOffset : out std_logic_vector(3 downto 0);
+        muxAluBSel, muxAluASel : out std_logic_vector(1 downto 0);
+        clk : in std_logic;
+        reset : in std_logic;
+        opcode : in std_logic_vector(15 downto 0)
+  );
   end component;
 
   component dp is
@@ -55,13 +53,12 @@ architecture sea_top of sea_top is
       muxRegA1Sel,
       muxRegAWSel,
       muxRegWDSel,
-      muxAluASel,
       pcWEn,
       memibufWEn,
       memdbufWEn,
       regR0dbufWEn,
       regR1dbufWEn : in std_logic;
-      muxAluBSel : in std_logic_vector(1 downto 0);
+      muxAluBSel, muxAluASel : in std_logic_vector(1 downto 0);
       opcode : out std_logic_vector(7 downto 0);
       aluop : in std_logic_vector(3 downto 0)
     );
@@ -70,7 +67,7 @@ architecture sea_top of sea_top is
   begin
 
     cu0: cu port map(
-mem0WEn,
+        mem0WEn => mem0WEn,
         reg0WEn => reg0WEn,
         alu0WEn => alu0WEn,
         muxPCSel => muxPCSel,
@@ -86,13 +83,13 @@ mem0WEn,
         memdbufWEn => memdbufWEn,
         regR0dbufWEn => regR0dbufWEn,
         
-        regR1dbufWEn : out std_logic;
-        aluOp, flagOffset : out std_logic_vector(3 downto 0);
-        muxAluBSel : out std_logic_vector(1 downto 0);
-        clk : in std_logic;
-        reset : in std_logic;
-        opcode : in std_logic_vector(15 downto 0)
-
+        regR1dbufWEn => regR1dbufWEn,
+        aluOp => aluop,
+        flagOffset => flagOffset,
+        muxAluBSel => muxAluBSel,
+        clk => clk,
+        reset => reset,
+        opcode => opcode
     );
 
 
@@ -112,15 +109,14 @@ mem0WEn,
       memdbufWEn => memdbufWEn,
       regR0dbufWEn => regR0dbufWEn,
 
-      regR1dbufWEn : out std_logic;
-      muxAluBSel : out std_logic_vector(1 downto 0);
-      opcode : in std_logic_vector(7 downto 0);
-      aluop, flagOffset : out std_logic_vector(3 downto 0)
+      regR1dbufWEn => regR1dbufWEn,
+      muxAluBSel => muxAluBSel,
+      clk => clk,
+      reset =>  reset,
+      aluop => aluop,
+      opcode => opcode
     );
-
-
-
-  end sea_top;
+ end sea_top;
     
     
 -- TODO finish the top

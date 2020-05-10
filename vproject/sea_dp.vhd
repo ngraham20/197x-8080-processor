@@ -19,13 +19,12 @@ entity dp is
     muxRegA1Sel,
     muxRegAWSel,
     muxRegWDSel,
-    muxAluASel,
     pcWEn,
     memibufWEn,
     memdbufWEn,
     regR0dbufWEn,
     regR1dbufWEn : in std_logic;
-    muxAluBSel : in std_logic_vector(1 downto 0);
+    muxAluBSel, muxAluASel : in std_logic_vector(1 downto 0);
     opcode : out std_logic_vector(7 downto 0);
     aluop : in std_logic_vector(3 downto 0)
   );
@@ -109,7 +108,7 @@ begin
         clk => clk, wEn => mem0WEn, a => muxMemABus,
         wd => muxMemWBus, rd => memRBus
     );
-    reg0:       reg port map(
+    reg0:       regfile port map(
         clk => clk, wEn => reg0WEn, ra0 => muxRegA0Bus,
         ra1 => muxRegA1Bus, wa => muxRegAWBus, wd => muxRegWDBus,
         rd0 => regR0Bus, rd1 => regR1Bus
@@ -137,15 +136,24 @@ begin
         s       => muxMemWSel,
         y       => muxMemWBus
     );
+    muxRegA0: mux2 generic map(16) port map(
+        d0      => memibufBus,
+        d1      => memibufbus,                          --TODO: Flags signal
+        s       => muxRegA0Sel,
+        y       => muxRegA0Bus
+    );
+
     muxRegWD:   mux2 generic map(16) port map(
         d0      => memdbufBus,
         d1      => aludbufBus,
         s       => muxRegWDSel,
         y       => muxregWDBus
     );
-    muxAluA:    mux2 generic map(16) port map(
+    muxAluA:    mux4 generic map(16) port map(
         d0      => regR0dbufBus,
         d1      => memibufBus,
+        d2      => pcBus,
+        d3      => low,
         s       => muxAluASel,
         y       => muxAluABus
     );
