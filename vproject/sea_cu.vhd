@@ -26,7 +26,7 @@ entity cu is
         muxAluBSel, muxAluASel : out std_logic_vector(1 downto 0);
         clk : in std_logic;
         reset : in std_logic;
-        opcode : in std_logic_vector(15 downto 0)
+        opcode : in std_logic_vector(7 downto 0)
   );
 end;
 
@@ -35,7 +35,7 @@ end;
 ---------------------------------------------------------
 architecture cu of cu is
 
-signal controls : std_logic_vector(23 downto 0);
+signal controls : std_logic_vector(26 downto 0);
 signal flagAddr : std_logic_vector(15 downto 0);
 
 type stateType is (fetch, getab, getai, add, sub, addi, pcinc, stalu);

@@ -6,6 +6,7 @@ use IEEE.STD_LOGIC_1164.all;
 use IEEE.STD_LOGIC_UNSIGNED.all;
 
 entity sea_top is -- top-level design for testing
+  port(clk, reset : in std_logic);
 end;
 
 ---------------------------------------------------------
@@ -35,7 +36,7 @@ architecture sea_top of sea_top is
         muxAluBSel, muxAluASel : out std_logic_vector(1 downto 0);
         clk : in std_logic;
         reset : in std_logic;
-        opcode : in std_logic_vector(15 downto 0)
+        opcode : in std_logic_vector(7 downto 0)
   );
   end component;
 
@@ -63,6 +64,26 @@ architecture sea_top of sea_top is
       aluop : in std_logic_vector(3 downto 0)
     );
   end component;
+
+
+    signal mem0WEn,
+    reg0WEn,
+    alu0WEn,
+    muxPCSel,
+    muxMemASel,
+    muxMemWSel,
+    muxRegA0Sel,
+    muxRegA1Sel,
+    muxRegAWSel,
+    muxRegWDSel,
+    pcWEn,
+    memibufWEn,
+    memdbufWEn,
+    regR0dbufWEn,
+    regR1dbufWEn : std_logic;
+    signal aluOp, flagOffset : std_logic_vector(3 downto 0);
+    signal muxAluBSel, muxAluASel : std_logic_vector(1 downto 0);
+    signal opcode : std_logic_vector(7 downto 0);
 
   begin
 
@@ -94,6 +115,7 @@ architecture sea_top of sea_top is
 
 
     dp0: dp port map(
+      mem0WEn => mem0WEn,
       reg0WEn =>  reg0WEn,
       alu0WEn => alu0WEn,
       muxPCSel => muxPCSel,

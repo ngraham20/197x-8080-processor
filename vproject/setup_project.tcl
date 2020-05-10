@@ -21,7 +21,7 @@ if {[llength $files] != 0} {
 # on line 22 (e.g. change test_alu to your top level module name)
 ####################################################################
 #Create project
-create_project -part xc7a100tcsg324-1 computer_top $outputdir
+create_project -part xc7a100tcsg324-1 sea_top $outputdir
 
 # Example commands for adding files to the project
 # add_files [glob ./path/to/sources/*.vhd]
@@ -41,7 +41,7 @@ add_files -fileset constrs_1 ./Nexys4DDR_Master.xdc
 # on line 42 (e.g. change test_alu to your top level module name)
 ####################################################################
 #set top level module and update compile order
-set_property top computer_top [current_fileset]
+set_property top sea_top [current_fileset]
 set_property top sea_testbench [get_fileset sim_1]
 
 # Set the compile order for both the FPGA project and simulation

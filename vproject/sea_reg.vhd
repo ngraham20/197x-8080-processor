@@ -34,7 +34,7 @@ begin
   
   -- read mem from two separate ports 1 and 2 
   -- addresses are in ra0 and ra1
-  process(ra0, ra1, rd0, rd1, mem) begin
+  process(ra0, ra1, mem) begin
     if ( to_integer(unsigned(ra0)) = 0) then 
 		rd0 <= (others => '0'); -- register 0 holds 0
     else 

@@ -78,8 +78,8 @@ port(a, b :     in STD_LOGIC_VECTOR(15 downto 0);
       );
 end component;
 
-signal memRBus,
-    regR0Bus,
+signal memRBus : std_logic_vector(31 downto 0);
+signal regR0Bus,
     regR1Bus,
     aluYBus : std_logic_vector(15 downto 0); -- out of components
 
@@ -171,7 +171,7 @@ begin
         data_in     => muxPCBus,
         data_out    => PCBus
     );
-    memibuf:    sea_buffer generic map(16) port map(
+    memibuf:    sea_buffer generic map(32) port map(
         clk         => clk,
         w_enable    => memibufWEn,
         data_in     => memRBus,
@@ -180,7 +180,7 @@ begin
     memdbuf:    sea_buffer generic map(16) port map(
         clk         => clk,
         w_enable    => memdbufWEn,
-        data_in     => memRBus,
+        data_in     => memRBus(31 downto 16),
         data_out    => memdbufBus
     );
     regR0dbuf:  sea_buffer generic map(16) port map(

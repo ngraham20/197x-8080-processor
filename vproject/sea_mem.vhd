@@ -10,7 +10,7 @@ use IEEE.NUMERIC_STD.all;
 entity mem is -- instruction / data memory
   generic(width: integer);
   port(clk, wEn:  in STD_LOGIC;
-       a, wd:    in STD_LOGIC_VECTOR((width-1) downto 0);
+       a, wd:    in STD_LOGIC_VECTOR((width/2-1) downto 0); -- TODO decrease 'a' to 16 properly
        rd:       out STD_LOGIC_VECTOR((width-1) downto 0));
   end;
 

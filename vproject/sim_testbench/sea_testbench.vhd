@@ -3,22 +3,22 @@ use IEEE.STD_LOGIC_1164.all;
 use IEEE.STD_LOGIC_UNSIGNED.all;
 use IEEE.NUMERIC_STD.all;
 
-entity mips_testbench is
+entity sea_testbench is
 end;
 
-architecture mips_testbench of mips_testbench is
+architecture sea_testbench of sea_testbench is
 
-    component mips_top is -- top-level design for testing
+    component sea_top is -- top-level design for testing
       port( 
            clk : in STD_LOGIC;
-           reset: in STD_LOGIC;
-           out_port_1 : out STD_LOGIC_VECTOR(31 downto 0)
+           reset: in STD_LOGIC
+          --  out_port_1 : out STD_LOGIC_VECTOR(31 downto 0)
            );
     end component;
 
     signal clk : STD_LOGIC;
     signal reset : STD_LOGIC;
-    signal out_port_1 : STD_LOGIC_VECTOR(31 downto 0);
+    -- signal out_port_1 : STD_LOGIC_VECTOR(31 downto 0);
     
 begin
   
@@ -39,9 +39,8 @@ begin
   end process;
   
   -- instantiate device to be tested
-  dut: mips_top port map( 
+  dut: sea_top port map( 
        clk => clk, 
-       reset => reset,
-       out_port_1 => out_port_1 );
+       reset => reset);
 
-end mips_testbench;
+end sea_testbench;
