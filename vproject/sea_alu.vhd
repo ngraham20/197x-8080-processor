@@ -26,7 +26,7 @@ architecture alu of alu is
     -- A will be the register
     -- B will be the offset
     signal flag : STD_LOGIC_VECTOR(15 downto 0);
-    signal seq, slt, r_shift, l_shift : STD_LOGIC_VECTOR(15 downto 0);
+    signal low, seq, slt, r_shift, l_shift : STD_LOGIC_VECTOR(15 downto 0);
 
     component shift_left is
         generic (N : integer := 32);
@@ -54,7 +54,9 @@ architecture alu of alu is
        
     
     -- Read flag offset bit
-    flag <= r_shift and "0000000000000001";
+    -- flag <= r_shift and "0000000000000001";
+    low <= (others => '0');
+
 
     -- SLT
     process (a, b, clk)
@@ -84,14 +86,14 @@ architecture alu of alu is
         when "0001"  => y <= a - b;
         --when "0010"  => y <= a * b;
         -- when "0011"  => y <= a / b;
-        when "0100"  => y <= a and b;
-        when "0101"  => y <= a or b;
-        when "0110"  => y <= a xor b;
+        when "0011"  => y <= a and b;
+        when "0100"  => y <= a or b;
+        when "0101"  => y <= a xor b;
         when "0111"  => y <= l_shift;
-        when "1000"  => y <= r_shift;
-        when "1001"  => y <= slt;
-        when "1010"  => y <= seq;
-        when others  => y <= flag;
+        when "0110"  => y <= r_shift;
+        when "1000"  => y <= slt;
+        when "1001"  => y <= seq;
+        when others  => y <= low;
         end case;
     end process;
 	  
