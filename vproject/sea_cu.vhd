@@ -47,28 +47,33 @@ begin
   process(clk, reset, opcode)
   begin
     if (rising_edge(clk)) then
-      case state is
-        when fetch => -- fetch
-          case opcode(7 downto 4) is
-            when "0000" => state <= getab;    -- A alu B
-            when "1111" => state <= getai;     -- A alu imm
-            when others => state <= fetch;    -- reset
-          end case;
-        when getab =>                         -- getab
-          case opcode(3 downto 0) is
-            when "0000" => state <= add;      -- a = a + b
-            when "0001" => state <= sub;      -- a = a - b
-            when others => state <= fetch;    -- reset
-          end case;
-        when getai =>
-            case opcode (3 downto 0) is
-              when "1111" => state <= addi;   -- a + imm
-              when others => state <= fetch;  -- reset
+      if (reset = '1') then
+        state <= fetch;
+      else
+        case state is
+          when fetch => -- fetch
+            case opcode(7 downto 4) is
+              when "0000" => state <= getab;    -- A alu B
+              when "1111" => state <= getai;     -- A alu imm
+              when others => state <= fetch;    -- reset
             end case;
-        when add => state <= stalu;
-        when addi => state <= stalu;
-        when others => state <= fetch;        -- reset   
-       end case; 
+          when getab =>                         -- getab
+            case opcode(3 downto 0) is
+              when "0000" => state <= add;      -- a = a + b
+              when "0001" => state <= sub;      -- a = a - b
+              when others => state <= fetch;    -- reset
+            end case;
+          when getai =>
+              case opcode (3 downto 0) is
+                when "1111" => state <= addi;   -- a + imm
+                when others => state <= fetch;  -- reset
+              end case;
+          when add => state <= stalu;
+          when addi => state <= stalu;
+          when stalu => state <= pcinc;
+          when others => state <= fetch;        -- reset   
+        end case; 
+      end if;
     end if;
   end process;
 

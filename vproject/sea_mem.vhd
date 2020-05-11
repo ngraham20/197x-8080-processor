@@ -10,12 +10,14 @@ use IEEE.NUMERIC_STD.all;
 entity mem is -- instruction / data memory
   generic(width: integer);
   port(clk, wEn:  in STD_LOGIC;
-       a, wd:    in STD_LOGIC_VECTOR((width/2-1) downto 0); -- TODO decrease 'a' to 16 properly
-       rd:       out STD_LOGIC_VECTOR((width-1) downto 0));
+       a : in STD_LOGIC_VECTOR(7 downto 0);  -- 8 bit address (1B)
+       wd : in STD_LOGIC_VECTOR(15 downto 0); -- write 16 bit 2B
+       ri:       out  STD_LOGIC_VECTOR((width-1) downto 0);  -- read instruction, get 4B
+       rd:       out STD_LOGIC_VECTOR(15 downto 0));  -- read data, get 2B
   end;
 
 architecture behave of mem is
-  type ramtype is array (127 downto 0) of STD_LOGIC_VECTOR((width-1) downto 0);
+  type ramtype is array (63 downto 0) of STD_LOGIC_VECTOR((width-1) downto 0);
 
 
   -- function to initialize the instruction memory from a data file
@@ -24,13 +26,13 @@ architecture behave of mem is
   variable ch: character;
   variable index : integer;
   variable result: signed((width-1) downto 0);
-  variable tmpResult: signed(64 downto 0);
+  variable tmpResult: signed(63 downto 0);
   file mem_file: TEXT is in RamFileName;
   variable L: line;
   variable RAM : ramtype;
   begin
     -- initialize memory from a file
-    for i in 0 to 64 loop -- set all contents low
+    for i in 0 to 31 loop -- set all contents low
       RAM(i) := std_logic_vector(to_unsigned(0, width));
     end loop;
     index := 0;
@@ -62,16 +64,25 @@ architecture behave of mem is
   end function;
 
   -- use the impure function to read RAM from a file and store in the FPGA's ram memory
-  signal mem: ramtype := InitRamFromFile("main.sea");
+  signal mem: ramtype := InitRamFromFile("memfile.dat");
 
 begin
     process ( clk, a ) is
         begin
           if clk'event and clk = '1' then
-              if (wEn = '1') then 
-                  mem( to_integer(unsigned(a(7 downto 2))) ) <= wd;
+              if (wEn = '1') then
+                if a(1) = '0' then
+                  mem( to_integer(unsigned(a(7 downto 2))) )(31 downto 16) <= wd;
+                else
+                  mem( to_integer(unsigned(a(7 downto 2))) )(15 downto 0) <= wd; 
+                end if;                 
               end if;
           end if;
-          rd <= mem( to_integer(unsigned(a(7 downto 2))) ); -- word aligned
+          ri <= mem( to_integer(unsigned(a(7 downto 2))) ); -- word aligned
+          if a(1) = '0' then
+            rd <= mem( to_integer(unsigned(a(7 downto 2))))(31 downto 16); -- if the 2s palce is 0, get first 16
+          else
+            rd <= mem( to_integer(unsigned(a(7 downto 2))))(15 downto 0);  -- if the 2s place is 1, get last 16
+          end if;
         end process;
 end behave;

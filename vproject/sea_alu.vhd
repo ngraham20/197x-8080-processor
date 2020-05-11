@@ -82,7 +82,7 @@ architecture alu of alu is
         case aluop is
         when "0000"  => y <= a + b;
         when "0001"  => y <= a - b;
-        when "0010"  => y <= a * b;
+        --when "0010"  => y <= a * b;
         -- when "0011"  => y <= a / b;
         when "0100"  => y <= a and b;
         when "0101"  => y <= a or b;

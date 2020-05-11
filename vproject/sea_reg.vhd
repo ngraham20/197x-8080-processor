@@ -11,7 +11,7 @@ use IEEE.math_real.all;
 entity regfile is 
   port(clk:           in  STD_LOGIC;
        wEn:           in  STD_LOGIC;
-       ra0, ra1, wa: in  STD_LOGIC_VECTOR(15 downto 0);
+       ra0, ra1, wa: in  STD_LOGIC_VECTOR(7 downto 0);
        wd:           in  STD_LOGIC_VECTOR(15 downto 0);
        rd0, rd1:      out STD_LOGIC_VECTOR(15 downto 0));
 end;
@@ -26,9 +26,9 @@ begin
   -- write address is in wa
   process(clk, wEn, wa, wd) begin
     if rising_edge(clk) then
-		if wEn = '1' then 
-			mem(to_integer(unsigned(wa))) <= wd;
-		end if;
+      if wEn = '1' then 
+        mem(to_integer(unsigned(wa))) <= wd;
+      end if;
     end if;
   end process;
   
