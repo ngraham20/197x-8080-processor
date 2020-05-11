@@ -20,6 +20,7 @@ entity dp is
     muxRegAWSel,
     muxRegWDSel,
     pcWEn,
+    aludbufWEn,
     memibufWEn,
     memdbufWEn,
     regR0dbufWEn,
@@ -35,6 +36,7 @@ architecture dp of dp is
 component sea_buffer is
 generic (width : integer);
 port(clk        : in std_logic;
+    reset       : in std_logic;
     w_enable    : in std_logic;
     data_in     : in std_logic_vector(width-1 downto 0);
     data_out    : out std_logic_vector(width-1 downto 0)
@@ -140,7 +142,7 @@ begin
     );
     muxRegA0: mux2 generic map(8) port map(
         d0      => memibufBus(15 downto 8),
-        d1      => memibufbus(15 downto 8),                          --TODO: Flags signal
+        d1      => memibufbus(23 downto 16),
         s       => muxRegA0Sel,
         y       => muxRegA0Bus
     );
@@ -169,12 +171,14 @@ begin
     );
     pc:         sea_buffer generic map(16) port map(
         clk         => clk,
+        reset       => reset,
         w_enable    => pcWEn,
         data_in     => muxPCBus,
         data_out    => PCBus
     );
     memibuf:    sea_buffer generic map(32) port map(
         clk         => clk,
+        reset       => reset,
         w_enable    => memibufWEn,
         data_in     => memRIBus,
         data_out    => memibufBus
@@ -184,25 +188,29 @@ begin
 
     memdbuf:    sea_buffer generic map(16) port map(
         clk         => clk,
+        reset       => reset,
         w_enable    => memdbufWEn,
         data_in     => memRDBus,
         data_out    => memdbufBus
     );
     regR0dbuf:  sea_buffer generic map(16) port map(
         clk         => clk,
-        w_enable    => pcWEn,
+        reset       => reset,
+        w_enable    => regR0dbufWEn,
         data_in     => regR0Bus,
         data_out    => regR0dbufBus
     );
     regR1dbuf:  sea_buffer generic map(16) port map(
         clk         => clk,
+        reset       => reset,
         w_enable    => regR1dbufWEn,
         data_in     => regR1Bus,
         data_out    => regR1dbufBus
     );
     aludbuf:    sea_buffer generic map(16) port map(
         clk         => clk,
-        w_enable    => pcWEn,
+        reset       => reset,
+        w_enable    => aludbufWEn,
         data_in     => aluYBus,
         data_out    => aludbufBus
     );

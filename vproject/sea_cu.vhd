@@ -18,6 +18,7 @@ entity cu is
         muxRegAWSel,
         muxRegWDSel,
         pcWEn,
+        aludbufWEn,
         memibufWEn,
         memdbufWEn,
         regR0dbufWEn,
@@ -35,10 +36,10 @@ end;
 ---------------------------------------------------------
 architecture cu of cu is
 
-signal controls : std_logic_vector(26 downto 0);
+signal controls : std_logic_vector(27 downto 0);
 signal flagAddr : std_logic_vector(15 downto 0);
 
-type stateType is (fetch, getab, getai, add, sub, addi, pcinc, stalu);
+type stateType is (resetst, fetch, decode, getab, getai, add, sub, addi, pcinc, pcstor, stalu);
 signal state : stateType;
 
 begin
@@ -46,34 +47,35 @@ begin
   -- state machine
   process(clk, reset, opcode)
   begin
-    if (rising_edge(clk)) then
-      if (reset = '1') then
-        state <= fetch;
-      else
-        case state is
-          when fetch => -- fetch
-            case opcode(7 downto 4) is
-              when "0000" => state <= getab;    -- A alu B
-              when "1111" => state <= getai;     -- A alu imm
-              when others => state <= fetch;    -- reset
+    if (reset = '1') then
+      state <= fetch;
+    elsif (rising_edge(clk)) then
+      case state is
+        -- when resetst => state <= fetch;
+        when fetch => state <= decode; -- fetch
+        when decode =>
+          case opcode(7 downto 4) is
+            when "0000" => state <= getab;    -- A alu B
+            when "1111" => state <= getai;     -- A alu imm
+            when others => state <= fetch;    -- reset
+          end case;
+        when getab =>                         -- getab
+          case opcode(3 downto 0) is
+            when "0000" => state <= add;      -- a = a + b
+            when "0001" => state <= sub;      -- a = a - b
+            when others => state <= fetch;    -- reset
+          end case;
+        when getai =>
+            case opcode (3 downto 0) is
+              when "1111" => state <= addi;   -- a + imm
+              when others => state <= fetch;  -- reset
             end case;
-          when getab =>                         -- getab
-            case opcode(3 downto 0) is
-              when "0000" => state <= add;      -- a = a + b
-              when "0001" => state <= sub;      -- a = a - b
-              when others => state <= fetch;    -- reset
-            end case;
-          when getai =>
-              case opcode (3 downto 0) is
-                when "1111" => state <= addi;   -- a + imm
-                when others => state <= fetch;  -- reset
-              end case;
-          when add => state <= stalu;
-          when addi => state <= stalu;
-          when stalu => state <= pcinc;
-          when others => state <= fetch;        -- reset   
-        end case; 
-      end if;
+        when add => state <= stalu;
+        when addi => state <= stalu;
+        when stalu => state <= pcinc;
+        when pcinc => state <= pcstor;
+        when others => state <= fetch;        -- reset   
+      end case; 
     end if;
   end process;
 
@@ -81,15 +83,18 @@ begin
   process(clk, reset, state)
   begin
     case state is
-      --                        [  write en   ] [pcsel] [mem]  [reg ]   [alu ]   [flag]  [aluop]   
-      when fetch => controls <= "000" & "01000" & "0" & "00" & "0000" & "0000" & "0000" & "0000"; -- get instr
-      when getab => controls <= "000" & "00011" & "0" & "00" & "0000" & "0000" & "0000" & "0000"; -- select a and b
-      when getai => controls <= "000" & "00010" & "0" & "00" & "0000" & "0000" & "0000" & "0000"; -- select a and imm
-      when add   => controls <= "000" & "00000" & "0" & "00" & "0000" & "0000" & "0000" & "0000"; -- a + b
-      when addi  => controls <= "000" & "00000" & "0" & "00" & "0000" & "0001" & "0000" & "0000"; -- a + imm
-      when stalu => controls <= "010" & "00000" & "0" & "00" & "0001" & "0000" & "0000" & "0000"; -- store result in reg
-      when pcinc => controls <= "000" & "10000" & "0" & "00" & "0000" & "1010" & "0000" & "0000"; -- store pc + 4
-      when others => controls <= "000" & "01000" & "0" & "00" & "0000" & "0000" & "0000" & "0000";
+      --                        [  write en   ] [pcsel] [mem]  [reg ]   [alu ]   [flag]  [aluop] 
+     -- when resetst => controls <= "000" & "001000" & "0" & "00" & "0000" & "0000" & "0000" & "0000"; -- get instr  
+      when fetch => controls <= "000" & "001000" & "0" & "00" & "0000" & "0000" & "0000" & "0000"; -- get instr
+      when decode => controls <= "000" & "000000" & "0" & "00" & "0000" & "0000" & "0000" & "0000"; -- get instr 
+      when getab => controls <= "000" & "000011" & "0" & "00" & "0000" & "0000" & "0000" & "0000"; -- select a and b
+      when getai => controls <= "000" & "000010" & "0" & "00" & "0000" & "0000" & "0000" & "0000"; -- select a and imm
+      when add   => controls <= "000" & "100000" & "0" & "00" & "0000" & "0000" & "0000" & "0000"; -- a + b
+      when addi  => controls <= "000" & "100000" & "0" & "00" & "1000" & "0001" & "0000" & "0000"; -- a + imm
+      when stalu => controls <= "010" & "000000" & "0" & "00" & "0001" & "0000" & "0000" & "0000"; -- store result in reg
+      when pcinc => controls <= "000" & "100000" & "0" & "00" & "0000" & "1010" & "0000" & "0000"; -- store pc + 4
+      when pcstor => controls <= "000" & "010000" & "0" & "00" & "0000" & "0000" & "0000" & "0000"; -- get instr 
+      when others => controls <= "000" & "001000" & "0" & "00" & "0000" & "0000" & "0000" & "0000";
     end case;
   end process;
 
@@ -121,10 +126,11 @@ begin
 --     end case;
 -- end process;
 
-mem0WEn <= controls(26);
-reg0WEn <= controls(25);
-alu0WEn <= controls(24);
+mem0WEn <= controls(27);
+reg0WEn <= controls(26);
+alu0WEn <= controls(25);
 
+aludbufWEn <= controls(24);
 pcWEn <= controls(23);
 memibufWEn <= controls(22);
 memdbufWEn <= controls(21);
