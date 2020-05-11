@@ -176,6 +176,17 @@ fn parse_instructions(lines: &Vec<std::result::Result<std::string::String, std::
                     instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
                     instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
                 },
+                "SLT" => {
+                    instcode += 0x08000000;
+                    instcode+= parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode+= parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
+                
+                },
+                "SEQ" => {
+                    instcode += 0x09000000;
+                    instcode+= parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode+= parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
+                },
                 "ADDI" => {
                     instcode += 0xFF000000;
                     instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
@@ -186,21 +197,10 @@ fn parse_instructions(lines: &Vec<std::result::Result<std::string::String, std::
                     instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
                     instcode += parse_immediate(&tokens[2], &variables, &labels).unwrap() as u32;
                 },
-                "SLT" => {
-                    instcode +=  0x03000000;
-                    instcode+= parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
-                    instcode+= parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
-                
-                },
-                 "SEQ" => {
-                     instcode += 0x02000000;
-                     instcode+= parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
-                     instcode+= parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
-                    },
                 _ => {}
             };
         }
-        println!("{:08X}", instcode);
+        println!("{:08x}", instcode);
     }
 }
 
@@ -232,7 +232,7 @@ fn parse_register<'a>(token: &'a str, variables: &'a Variables) -> std::result::
         "4" => Ok(0x04),
         "5" => Ok(0x05),
         "6" => Ok(0x06),
-        "7" => Ok(0x06),
+        "7" => Ok(0x07),
         _ => Err("Invalid offset, you scrub.")
     };
 
