@@ -61,6 +61,7 @@ begin
           case opcode(7 downto 4) is
             when "0000" => state <= getab;    -- A alu B
             when "1111" => state <= getai;     -- A alu imm
+            -- when "1110" => state <= 
             when others => state <= fetch;    -- reset
           end case;
         when getab =>                         -- getab
