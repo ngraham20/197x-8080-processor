@@ -111,23 +111,6 @@ fn parse_instructions(lines: &Vec<std::result::Result<std::string::String, std::
             let upinstr = instr.to_uppercase();
             let tokens: Vec<&str> = upinstr.split(" ").collect();
             match &tokens[0][..] {
-                "COPY" => {
-                    instcode += 0xFE000000;
-                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
-                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
-                },
-                // "TJMP"  => {Ok(0xFD)},
-                "TJMP" => {
-                    // opcode: 0xFD
-                    // test result flag: 0x17
-                    instcode += 0xFD170000;
-                    instcode += parse_immediate(&tokens[1], &variables, &labels).unwrap() as u32;
-                }
-                // "JUMP" => {Ok(0xFC)},
-                "JUMP" => {
-                    instcode += 0xFC000000;
-                    instcode += parse_immediate(&tokens[1], &variables, &labels).unwrap() as u32;
-                }
                 "ADD" => {
                     // instruction code is 0x00
                     instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
@@ -196,6 +179,30 @@ fn parse_instructions(lines: &Vec<std::result::Result<std::string::String, std::
                     instcode += 0xFE000000;
                     instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
                     instcode += parse_immediate(&tokens[2], &variables, &labels).unwrap() as u32;
+                },
+                // MULI 0xFD
+                // DIVI 0xFC
+                "COPY" => {
+                    instcode += 0xFB000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
+                },
+                "COPI" => {
+                    instcode += 0xFA000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_immediate(&tokens[2], &variables, &labels).unwrap() as u32;
+                }
+                // TODO modify this to new idea "TJMP"  => {Ok(0xFD)},
+                // "TJMP" => {
+                //     // opcode: 0xFD
+                //     // test result flag: 0x17
+                //     instcode += 0xFD170000;
+                //     instcode += parse_immediate(&tokens[1], &variables, &labels).unwrap() as u32;
+                // }
+                // "JUMP" => {Ok(0xFC)},
+                "JUMP" => {
+                    instcode += 0xFC000000;
+                    instcode += parse_immediate(&tokens[1], &variables, &labels).unwrap() as u32;
                 },
                 _ => {}
             };
