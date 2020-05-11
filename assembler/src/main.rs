@@ -100,6 +100,11 @@ fn parse_variables(lines: & Vec<std::result::Result<std::string::String, std::io
 }
 
 fn parse_instructions(lines: &Vec<std::result::Result<std::string::String, std::io::Error>>, pos: usize, labels: &Labels, variables: &Variables) {
+
+    // [opcode] [src] [tgt] [dst]
+    // [opcode] [src] [imm]
+
+
     for line in lines[pos+1..].iter().filter(|x| &x.as_ref().unwrap()[0..1] != ":" ) {
         let mut instcode: u32 = 0x00;
         if let Ok(instr) = line {
