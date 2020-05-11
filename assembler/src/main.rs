@@ -129,8 +129,53 @@ fn parse_instructions(lines: &Vec<std::result::Result<std::string::String, std::
                     instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
                     instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
                 },
+                "SUB" => {
+                    instcode += 0x01000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
+                    instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
+                },
+                "AND" => {
+                    instcode += 0x04000000; // 0100
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
+                    instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
+                },
+                "OR" => {
+                    // 0101
+                    instcode += 0x05000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
+                    instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
+                },
+                "XOR" => {
+                    // 0110
+                    instcode += 0x06000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
+                    instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
+                },
+                "SRR" => {
+                    // 1000
+                    instcode += 0x08000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
+                    instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
+                },
+                "SRL" => {
+                    // 0111
+                    instcode += 0x07000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
+                    instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
+                },
                 "ADDI" => {
                     instcode += 0xFF000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_immediate(&tokens[2], &variables, &labels).unwrap() as u32;
+                },
+                "SUBI" => {
+                    instcode += 0xFE000000;
                     instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
                     instcode += parse_immediate(&tokens[2], &variables, &labels).unwrap() as u32;
                 },
@@ -145,12 +190,6 @@ fn parse_instructions(lines: &Vec<std::result::Result<std::string::String, std::
                      instcode+= parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
                      instcode+= parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
                     },
-                 "AND" => {
-                    instcode += 0x01000000;
-                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16,4);
-                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16,2);
-                    instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
-                },
                 _ => {}
             };
         }
@@ -168,7 +207,7 @@ fn parse_register<'a>(token: &'a str, variables: &'a Variables) -> std::result::
     } else {
         bytetoken = Ok(token.as_bytes());
     }
-    let registeroffset: u8 = 0x40;
+    let registeroffset: u8 = 0x20;
     let register = match bytetoken.unwrap()[0] as char {
         'R' => Ok(0x00 + registeroffset),
         'A' => Ok(0x02 + registeroffset),
