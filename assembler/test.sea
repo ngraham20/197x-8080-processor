@@ -13,3 +13,6 @@ or b3 a3 a4
 srl b4 a7 a7
 srr b5 b4 a7
 
+tjmp $r marker
+slt dst src tgt
+
