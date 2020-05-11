@@ -1,9 +1,15 @@
-
-VAR thea UINT16 15
-VAR theb UINT16 22
-
 BEGIN
 
-ADDI r3 thea
-ADDI r4 theb
-ADD r5 r3 r4
+ADDI a3 10
+ADDI a4 11
+ADDI a5 12
+ADDI a6 13
+ADDI a7 4
+
+add b0 a3 a4
+sub b1 a6 a5
+and b2 a3 a4
+or b3 a3 a4
+srl b4 a7 a7
+srr b5 b4 a7
+

@@ -141,35 +141,31 @@ fn parse_instructions(lines: &Vec<std::result::Result<std::string::String, std::
                     instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
                 },
                 "AND" => {
-                    instcode += 0x04000000; // 0100
+                    instcode += 0x02000000;
                     instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
                     instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
                     instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
                 },
                 "OR" => {
-                    // 0101
-                    instcode += 0x05000000;
+                    instcode += 0x03000000;
                     instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
                     instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
                     instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
                 },
                 "XOR" => {
-                    // 0110
-                    instcode += 0x06000000;
+                    instcode += 0x04000000;
                     instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
                     instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
                     instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
                 },
                 "SRR" => {
-                    // 1000
-                    instcode += 0x08000000;
+                    instcode += 0x05000000;
                     instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
                     instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
                     instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
                 },
                 "SRL" => {
-                    // 0111
-                    instcode += 0x07000000;
+                    instcode += 0x06000000;
                     instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
                     instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
                     instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
