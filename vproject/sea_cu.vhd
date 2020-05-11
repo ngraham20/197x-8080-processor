@@ -40,7 +40,10 @@ architecture cu of cu is
 signal controls : std_logic_vector(27 downto 0);
 signal flagAddr : std_logic_vector(15 downto 0);
 
-type stateType is (resetst, fetch, decode, getab, getai, add, sub, mul, andst, orst, xorst, srrst, srlst, sltst, seqst, addi, subi, pcinc, pcstor, stalu);
+type stateType is (resetst, fetch, decode, getab,
+  getai, add, sub, mul, andst, orst, xorst, srrst,
+  srlst, sltst, seqst, addi, subi, pcinc, pcstor,
+  copy, copi, alu_reg, imm_reg);
 signal state : stateType;
 
 begin
@@ -80,18 +83,18 @@ begin
               when "1110" => state <= subi;   -- a - imm
               when others => state <= fetch;  -- reset
             end case;
-        when add => state <= stalu;
-        when sub => state <= stalu;
-        when andst => state <= stalu;
-        when orst => state <= stalu;
-        when xorst => state <= stalu;
-        when srlst => state <= stalu;
-        when srrst => state <= stalu;
-        when sltst => state <= stalu;
-        when seqst => state <= stalu;
-        when addi => state <= stalu;
-        when subi => state <= stalu;
-        when stalu => state <= pcinc;
+        when add => state <= alu_reg;
+        when sub => state <= alu_reg;
+        when andst => state <= alu_reg;
+        when orst => state <= alu_reg;
+        when xorst => state <= alu_reg;
+        when srlst => state <= alu_reg;
+        when srrst => state <= alu_reg;
+        when sltst => state <= alu_reg;
+        when seqst => state <= alu_reg;
+        when addi => state <= alu_reg;
+        when subi => state <= alu_reg;
+        when alu_reg => state <= pcinc;
         when pcinc => state <= pcstor;
         when others => state <= fetch;        -- reset   
       end case; 
@@ -124,7 +127,7 @@ begin
       when addi   => controls <= "000" & "100000" & "0" & "00" & "1000" & "0001" & "0000" & "0000"; -- a + imm
       when subi   => controls <= "000" & "100000" & "0" & "00" & "1000" & "0001" & "0000" & "0000"; -- a - imm
       
-      when stalu  => controls <= "010" & "000000" & "0" & "00" & "0001" & "0000" & "0000" & "0000"; -- store result in reg
+      when alu_reg  => controls <= "010" & "000000" & "0" & "00" & "0001" & "0000" & "0000" & "0000"; -- store result in reg
       when pcinc  => controls <= "000" & "100000" & "0" & "00" & "0000" & "1010" & "0000" & "0000"; -- store pc + 4
       when pcstor => controls <= "000" & "010000" & "0" & "00" & "0000" & "0000" & "0000" & "0000"; -- get instr 
       when others => controls <= "000" & "001000" & "0" & "00" & "0000" & "0000" & "0000" & "0000";

@@ -1,17 +1,20 @@
 BEGIN
 
-addi a3 10
-addi a4 11
-addi a5 12
-addi a6 13
-addi a7 4
-addi b0 4
+# ----- OVERWRITE -----
+copi a3 10
+copi a3 11
 
-add c0 a3 a4
-sub c1 a6 a5
-and c2 a3 a4
-or c3 a3 a4
-srl c4 a7 a7
-srr c5 b4 a7
-seq c6 a7 b0
-slt a3 a4
+# ----- SEQ -----
+copi a4 10
+copi a5 10
+seq a4 a5
+
+# ----- SLT -----
+copi a6 10
+copi a7 11
+slt a6 a7
+
+# ----- COPY -----
+copi b0 10
+copi b1 25
+copy b0 b1
