@@ -217,9 +217,10 @@ fn parse_register<'a>(token: &'a str, variables: &'a Variables) -> std::result::
     let registeroffset: u8 = 0x20;
     let register = match bytetoken.unwrap()[0] as char {
         'R' => Ok(0x00 + registeroffset),
-        'A' => Ok(0x02 + registeroffset),
-        'B' => Ok(0x18 + registeroffset),
-        'C' => Ok(0x34 + registeroffset),
+        'A' => Ok(0x00 + registeroffset),
+        'B' => Ok(0x08 + registeroffset),
+        'C' => Ok(0x10 + registeroffset),
+        'D' => Ok(0x18 + registeroffset),
         _ =>   Err("Invalid register, you scrub.")
     };
 
