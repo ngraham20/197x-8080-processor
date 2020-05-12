@@ -17,7 +17,7 @@ entity regfile is
 end;
 
 architecture behave of regfile is
-  type ramtype is array (63 downto 0) of STD_LOGIC_VECTOR(15 downto 0);
+  type ramtype is array (255 downto 0) of STD_LOGIC_VECTOR(15 downto 0);
   signal mem: ramtype;
 begin
   -- three-ported register file

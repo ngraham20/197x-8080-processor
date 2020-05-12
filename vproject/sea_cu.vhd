@@ -47,7 +47,11 @@ type stateType is (resetst, fetch, decode, getab,
   copy, copi, alu_reg, imm_reg, jump, tjmp, fjmp);
 signal state : stateType;
 
+signal inverseBottomBit : std_logic;
+
 begin
+
+  inverseBottomBit <= not (regr0bottombit xor '0');
 
   -- state machine
   process(clk, reset, opcode)
@@ -97,7 +101,7 @@ begin
                 state <= fetch;
               end if; 
         when fjmp =>
-              if (reg0bottombit = '1') then
+              if (regR0BottomBit = '1') then
                 state <= pcinc;
               else
                 state <= fetch;
@@ -121,6 +125,8 @@ begin
       end case; 
     end if;
   end process;
+
+
 
   -- state definition
   process(clk, reset, state)
@@ -146,14 +152,14 @@ begin
       when seqst  => controls <= "000" & "100000" & "0" & "00" & "00000" & "0000" & "0000" & "1001"; -- a SEQ b
 
       when addi   => controls <= "000" & "100000" & "0" & "00" & "10000" & "0001" & "0000" & "0000"; -- a + imm
-      when subi   => controls <= "000" & "100000" & "0" & "00" & "10000" & "0001" & "0000" & "0000"; -- a - imm
+      when subi   => controls <= "000" & "100000" & "0" & "00" & "10000" & "0001" & "0000" & "0001"; -- a - imm
 
       when copy   => controls <= "010" & "000000" & "0" & "00" & "00010" & "0000" & "0000" & "0000"; -- a SEQ b
       when copi   => controls <= "010" & "000000" & "0" & "00" & "00011" & "0000" & "0000" & "0000"; -- a SEQ b
       
       when jump  => controls <= "000" & "010000" & "1" & "00" & "00000" & "0000" & "0000" & "0000"; -- jump
       when tjmp  => controls <= "000" & "010000" & regr0bottombit & "00" & "00000" & "0000" & "0000" & "0000"; -- tjmp
-      when fjmp  => controls <= "000" & "010000" & (regr0bottombit and '0') & "00" & "00000" & "0000" & "0000" & "0000"; -- fjmp
+      when fjmp  => controls <= "000" & "010000" & inverseBottomBit & "00" & "00000" & "0000" & "0000" & "0000"; -- fjmp
 
       when alu_reg  => controls <= "010" & "000000" & "0" & "00" & "00001" & "0000" & "0000" & "0000"; -- store result in reg
       when pcinc  => controls <= "000" & "100000" & "0" & "00" & "00000" & "1010" & "0000" & "0000"; -- store pc + 4
