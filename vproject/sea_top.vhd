@@ -32,6 +32,7 @@ architecture sea_top of sea_top is
         memdbufWEn,
         regR0dbufWEn,
         regR1dbufWEn : out std_logic;
+        regR0BottomBit : in std_logic;
         aluOp, flagOffset : out std_logic_vector(3 downto 0);
         muxAluBSel, muxAluASel, muxRegWDSel: out std_logic_vector(1 downto 0);
         clk : in std_logic;
@@ -59,6 +60,7 @@ architecture sea_top of sea_top is
       memdbufWEn,
       regR0dbufWEn,
       regR1dbufWEn : in std_logic;
+      regR0BottomBit : out std_logic;
       muxAluBSel, muxAluASel, muxRegWDSel : in std_logic_vector(1 downto 0);
       opcode : out std_logic_vector(7 downto 0);
       aluop : in std_logic_vector(3 downto 0)
@@ -81,6 +83,7 @@ architecture sea_top of sea_top is
     memdbufWEn,
     regR0dbufWEn,
     regR1dbufWEn : std_logic;
+    signal regR0BottomBit : std_logic;
     signal aluOp, flagOffset : std_logic_vector(3 downto 0);
     signal muxAluBSel, muxAluASel, muxRegWDSel : std_logic_vector(1 downto 0);
     signal opcode : std_logic_vector(7 downto 0);
@@ -104,7 +107,7 @@ architecture sea_top of sea_top is
         memibufWEn => memibufWEn,
         memdbufWEn => memdbufWEn,
         regR0dbufWEn => regR0dbufWEn,
-        
+        regR0BottomBit => regR0BottomBit,
         regR1dbufWEn => regR1dbufWEn,
         aluOp => aluop,
         flagOffset => flagOffset,
@@ -132,6 +135,7 @@ architecture sea_top of sea_top is
       memibufWEn => memibufWEn,
       memdbufWEn => memdbufWEn,
       regR0dbufWEn => regR0dbufWEn,
+      regR0BottomBit => regR0BottomBit,
       regR1dbufWEn => regR1dbufWEn,
       muxAluBSel => muxAluBSel,
       clk => clk,

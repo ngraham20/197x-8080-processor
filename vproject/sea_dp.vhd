@@ -24,6 +24,7 @@ entity dp is
     memdbufWEn,
     regR0dbufWEn,
     regR1dbufWEn : in std_logic;
+    regR0BottomBit : out std_logic;
     muxAluBSel, muxAluASel, muxRegWDSel : in std_logic_vector(1 downto 0);
     opcode : out std_logic_vector(7 downto 0);
     aluop : in std_logic_vector(3 downto 0)
@@ -186,6 +187,7 @@ begin
     );
 
     opcode <= memibufbus(31 downto 24);
+    regR0BottomBit <= regr0dbufbus(0);
 
     memdbuf:    sea_buffer generic map(16) port map(
         clk         => clk,

@@ -23,6 +23,7 @@ entity cu is
         memdbufWEn,
         regR0dbufWEn,
         regR1dbufWEn : out std_logic;
+        regR0BottomBit : in std_logic;
         aluOp, flagOffset : out std_logic_vector(3 downto 0);
         muxAluBSel, muxAluASel, muxRegWDSel : out std_logic_vector(1 downto 0);
         clk : in std_logic;
@@ -38,11 +39,12 @@ architecture cu of cu is
 
 signal controls : std_logic_vector(28 downto 0);
 signal flagAddr : std_logic_vector(15 downto 0);
+signal dotjump  : std_logic;
 
 type stateType is (resetst, fetch, decode, getab,
-  getai, add, sub, mul, andst, orst, xorst, srrst,
+  geta, add, sub, mul, andst, orst, xorst, srrst,
   srlst, sltst, seqst, addi, subi, pcinc, pcstor,
-  copy, copi, alu_reg, imm_reg);
+  copy, copi, alu_reg, imm_reg, jump);
 signal state : stateType;
 
 begin
@@ -59,7 +61,8 @@ begin
         when decode =>
           case opcode(7 downto 4) is
             when "0000" => state <= getab;    -- A alu B
-            when "1111" => state <= getai;     -- A alu imm
+            when "1111" => state <= geta;     -- A alu imm
+            when "1110" => state <= jump;
             -- when "1110" => state <= 
             when others => state <= fetch;    -- reset
           end case;
@@ -78,13 +81,20 @@ begin
             when "1010" => state <= copy;   -- copy dst <- a
             when others => state <= fetch;    -- reset
           end case;
-        when getai =>
+        when geta =>
             case opcode (3 downto 0) is
               when "1111" => state <= addi;   -- a + imm
               when "1110" => state <= subi;   -- a - imm
               when "1101" => state <= copi;   -- copy dst <- imm
+              when "1100" => state <= tjmp;   -- tjmp
               when others => state <= fetch;  -- reset
             end case;
+        when tjmp =>
+              if (regr0bottombit = '0') then
+                state <= pcinc;
+              else
+                state <= fetch;
+              end if; 
         when add => state <= alu_reg;
         when sub => state <= alu_reg;
         when andst => state <= alu_reg;
@@ -115,7 +125,7 @@ begin
       when decode => controls <= "000" & "000000" & "0" & "00" & "00000" & "0000" & "0000" & "0000"; -- get instr
 
       when getab  => controls <= "000" & "000011" & "0" & "00" & "00000" & "0000" & "0000" & "0000"; -- select a and b
-      when getai  => controls <= "000" & "000010" & "0" & "00" & "00000" & "0000" & "0000" & "0000"; -- select a and imm
+      when geta  => controls <= "000" & "000010" & "0" & "00" & "00000" & "0000" & "0000" & "0000"; -- select a and imm
 
       when add    => controls <= "000" & "100000" & "0" & "00" & "00000" & "0000" & "0000" & "0000"; -- a + b
       when sub    => controls <= "000" & "100000" & "0" & "00" & "00000" & "0000" & "0000" & "0001"; -- a - b
@@ -134,6 +144,9 @@ begin
       when copy   => controls <= "010" & "000000" & "0" & "00" & "00010" & "0000" & "0000" & "0000"; -- a SEQ b
       when copi   => controls <= "010" & "000000" & "0" & "00" & "00011" & "0000" & "0000" & "0000"; -- a SEQ b
       
+      when jump  => controls <= "000" & "010000" & "1" & "00" & "00000" & "0000" & "0000" & "0000"; -- jump
+      when tjmp  => controls <= "000" & "010000" & regr0bottombit & "00" & "00000" & "0000" & "0000" & "0000"; -- jump
+
       when alu_reg  => controls <= "010" & "000000" & "0" & "00" & "00001" & "0000" & "0000" & "0000"; -- store result in reg
       when pcinc  => controls <= "000" & "100000" & "0" & "00" & "00000" & "1010" & "0000" & "0000"; -- store pc + 4
       when pcstor => controls <= "000" & "010000" & "0" & "00" & "00000" & "0000" & "0000" & "0000"; -- get instr 
