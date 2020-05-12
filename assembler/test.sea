@@ -1,21 +1,9 @@
 BEGIN
 
-# ----- OVERWRITE -----
-copi a3 10
-copi a3 11
-
-# ----- SEQ -----
-copi a4 10
-copi a5 10
-seq c0 a4 a5
-
-# ----- SLT -----
-copi a6 10
-copi a7 11
-slt c1 a6 a7
-
-# ----- COPY -----
-copi b0 10
-copi b1 25
-copy b0 b1
-copy b1 b0
+copi a0 10
+copi a1 10
+seq b0 a0 a1
+tjmp b0 5
+copi a0 20
+seq b1 a0 a1
+tjmp b1 0
