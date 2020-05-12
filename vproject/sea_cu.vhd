@@ -44,7 +44,7 @@ signal dotjump  : std_logic;
 type stateType is (resetst, fetch, decode, getab,
   geta, add, sub, mul, andst, orst, xorst, srrst,
   srlst, sltst, seqst, addi, subi, pcinc, pcstor,
-  copy, copi, alu_reg, imm_reg, jump);
+  copy, copi, alu_reg, imm_reg, jump, tjmp);
 signal state : stateType;
 
 begin
@@ -125,7 +125,7 @@ begin
       when decode => controls <= "000" & "000000" & "0" & "00" & "00000" & "0000" & "0000" & "0000"; -- get instr
 
       when getab  => controls <= "000" & "000011" & "0" & "00" & "00000" & "0000" & "0000" & "0000"; -- select a and b
-      when geta  => controls <= "000" & "000010" & "0" & "00" & "00000" & "0000" & "0000" & "0000"; -- select a and imm
+      when geta  => controls <= "000" & "000010" & "0" & "00" & "10000" & "0000" & "0000" & "0000"; -- select a and imm
 
       when add    => controls <= "000" & "100000" & "0" & "00" & "00000" & "0000" & "0000" & "0000"; -- a + b
       when sub    => controls <= "000" & "100000" & "0" & "00" & "00000" & "0000" & "0000" & "0001"; -- a - b
