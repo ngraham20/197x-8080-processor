@@ -17,7 +17,6 @@ entity cu is
         muxRegA0Sel,
         muxRegA1Sel,
         muxRegAWSel,
-        muxRegWDSel,
         pcWEn,
         aludbufWEn,
         memibufWEn,
@@ -25,7 +24,7 @@ entity cu is
         regR0dbufWEn,
         regR1dbufWEn : out std_logic;
         aluOp, flagOffset : out std_logic_vector(3 downto 0);
-        muxAluBSel, muxAluASel : out std_logic_vector(1 downto 0);
+        muxAluBSel, muxAluASel, muxRegWDSel : out std_logic_vector(1 downto 0);
         clk : in std_logic;
         reset : in std_logic;
         opcode : in std_logic_vector(7 downto 0)
@@ -37,7 +36,7 @@ end;
 ---------------------------------------------------------
 architecture cu of cu is
 
-signal controls : std_logic_vector(27 downto 0);
+signal controls : std_logic_vector(28 downto 0);
 signal flagAddr : std_logic_vector(15 downto 0);
 
 type stateType is (resetst, fetch, decode, getab,
@@ -76,12 +75,14 @@ begin
             when "0111" => state <= srlst;  -- Left_Shift
             when "1000" => state <= sltst;  -- a SLT b
             when "1001" => state <= seqst;  -- a SEQ b
+            when "1010" => state <= copy;   -- copy dst <- a
             when others => state <= fetch;    -- reset
           end case;
         when getai =>
             case opcode (3 downto 0) is
               when "1111" => state <= addi;   -- a + imm
               when "1110" => state <= subi;   -- a - imm
+              when "1101" => state <= copi;   -- copy dst <- imm
               when others => state <= fetch;  -- reset
             end case;
         when add => state <= alu_reg;
@@ -95,6 +96,8 @@ begin
         when seqst => state <= alu_reg;
         when addi => state <= alu_reg;
         when subi => state <= alu_reg;
+        when copy => state <= pcinc;
+        when copi => state <= pcinc;
         when alu_reg => state <= pcinc;
         when pcinc => state <= pcstor;
         when others => state <= fetch;        -- reset   
@@ -108,81 +111,56 @@ begin
     case state is
       --                        [  write en   ] [pcsel] [mem]  [reg ]   [alu ]   [flag]  [aluop] 
      -- when resetst => controls <= "000" & "001000" & "0" & "00" & "0000" & "0000" & "0000" & "0000"; -- get instr  
-      when fetch  => controls <= "000" & "001000" & "0" & "00" & "0000" & "0000" & "0000" & "0000"; -- get instr
-      when decode => controls <= "000" & "000000" & "0" & "00" & "0000" & "0000" & "0000" & "0000"; -- get instr
+      when fetch  => controls <= "000" & "001000" & "0" & "00" & "00000" & "0000" & "0000" & "0000"; -- get instr
+      when decode => controls <= "000" & "000000" & "0" & "00" & "00000" & "0000" & "0000" & "0000"; -- get instr
 
-      when getab  => controls <= "000" & "000011" & "0" & "00" & "0000" & "0000" & "0000" & "0000"; -- select a and b
-      when getai  => controls <= "000" & "000010" & "0" & "00" & "0000" & "0000" & "0000" & "0000"; -- select a and imm
+      when getab  => controls <= "000" & "000011" & "0" & "00" & "00000" & "0000" & "0000" & "0000"; -- select a and b
+      when getai  => controls <= "000" & "000010" & "0" & "00" & "00000" & "0000" & "0000" & "0000"; -- select a and imm
 
-      when add    => controls <= "000" & "100000" & "0" & "00" & "0000" & "0000" & "0000" & "0000"; -- a + b
-      when sub    => controls <= "000" & "100000" & "0" & "00" & "0000" & "0000" & "0000" & "0001"; -- a - b
-      when mul    => controls <= "000" & "100000" & "0" & "00" & "0000" & "0000" & "0000" & "0010"; -- a * b
-      when andst  => controls <= "000" & "100000" & "0" & "00" & "0000" & "0000" & "0000" & "0011"; -- a AND b
-      when orst   => controls <= "000" & "100000" & "0" & "00" & "0000" & "0000" & "0000" & "0100"; -- a OR b
-      when xorst  => controls <= "000" & "100000" & "0" & "00" & "0000" & "0000" & "0000" & "0101"; -- a XOR b
-      when srrst  => controls <= "000" & "100000" & "0" & "00" & "0000" & "0000" & "0000" & "0110"; -- a SRR b
-      when srlst  => controls <= "000" & "100000" & "0" & "00" & "0000" & "0000" & "0000" & "0111"; -- a SRL b
-      when sltst  => controls <= "000" & "100000" & "0" & "00" & "0000" & "0000" & "0000" & "1000"; -- a SLT b
-      when seqst  => controls <= "000" & "100000" & "0" & "00" & "0000" & "0000" & "0000" & "1001"; -- a SEQ b
+      when add    => controls <= "000" & "100000" & "0" & "00" & "00000" & "0000" & "0000" & "0000"; -- a + b
+      when sub    => controls <= "000" & "100000" & "0" & "00" & "00000" & "0000" & "0000" & "0001"; -- a - b
+      when mul    => controls <= "000" & "100000" & "0" & "00" & "00000" & "0000" & "0000" & "0010"; -- a * b
+      when andst  => controls <= "000" & "100000" & "0" & "00" & "00000" & "0000" & "0000" & "0011"; -- a AND b
+      when orst   => controls <= "000" & "100000" & "0" & "00" & "00000" & "0000" & "0000" & "0100"; -- a OR b
+      when xorst  => controls <= "000" & "100000" & "0" & "00" & "00000" & "0000" & "0000" & "0101"; -- a XOR b
+      when srrst  => controls <= "000" & "100000" & "0" & "00" & "00000" & "0000" & "0000" & "0110"; -- a SRR b
+      when srlst  => controls <= "000" & "100000" & "0" & "00" & "00000" & "0000" & "0000" & "0111"; -- a SRL b
+      when sltst  => controls <= "000" & "100000" & "0" & "00" & "00000" & "0000" & "0000" & "1000"; -- a SLT b
+      when seqst  => controls <= "000" & "100000" & "0" & "00" & "00000" & "0000" & "0000" & "1001"; -- a SEQ b
 
-      when addi   => controls <= "000" & "100000" & "0" & "00" & "1000" & "0001" & "0000" & "0000"; -- a + imm
-      when subi   => controls <= "000" & "100000" & "0" & "00" & "1000" & "0001" & "0000" & "0000"; -- a - imm
+      when addi   => controls <= "000" & "100000" & "0" & "00" & "10000" & "0001" & "0000" & "0000"; -- a + imm
+      when subi   => controls <= "000" & "100000" & "0" & "00" & "10000" & "0001" & "0000" & "0000"; -- a - imm
+
+      when copy   => controls <= "010" & "000000" & "0" & "00" & "00010" & "0000" & "0000" & "0000"; -- a SEQ b
+      when copi   => controls <= "010" & "000000" & "0" & "00" & "00011" & "0000" & "0000" & "0000"; -- a SEQ b
       
-      when alu_reg  => controls <= "010" & "000000" & "0" & "00" & "0001" & "0000" & "0000" & "0000"; -- store result in reg
-      when pcinc  => controls <= "000" & "100000" & "0" & "00" & "0000" & "1010" & "0000" & "0000"; -- store pc + 4
-      when pcstor => controls <= "000" & "010000" & "0" & "00" & "0000" & "0000" & "0000" & "0000"; -- get instr 
-      when others => controls <= "000" & "001000" & "0" & "00" & "0000" & "0000" & "0000" & "0000";
+      when alu_reg  => controls <= "010" & "000000" & "0" & "00" & "00001" & "0000" & "0000" & "0000"; -- store result in reg
+      when pcinc  => controls <= "000" & "100000" & "0" & "00" & "00000" & "1010" & "0000" & "0000"; -- store pc + 4
+      when pcstor => controls <= "000" & "010000" & "0" & "00" & "00000" & "0000" & "0000" & "0000"; -- get instr 
+      when others => controls <= "000" & "001000" & "0" & "00" & "00000" & "0000" & "0000" & "0000";
     end case;
   end process;
 
+mem0WEn <= controls(28);
+reg0WEn <= controls(27);
+alu0WEn <= controls(26);
 
-----------------------------------     DECODE     ----------------------------------------------
--- process (clk, opcode)
--- begin
---     case opcode is
---       --    [OPCODE]                 [     miscelaneous control bits   ] [fofset] [aluop]
---       ------------------------------------------------------------------------------------------
---       when "00000000" => controls <= "01" & "0110" & "0011" & "0100" & "1111" & "0000" & "0000"; -- ADD
---       when "00000010" => controls <= "01" & "0110" & "0011" & "0100" & "1111" & "0000" & "1010"; -- SEQ
---       when "00000011" => controls <= "01" & "0110" & "0011" & "0100" & "1111" & "0000" & "1001"; -- SLT
---       when "00000010" => controls <= "01" & "0110" & "0011" & "0100" & "1111" & "0000" & "0100"; -- AND
---       when "00000001" => controls <= "01" & "0110" & "0011" & "0100" & "1111" & "0000" & "0001"; -- SUB
---       when "00000101" => controls <= "01" & "0110" & "0011" & "0100" & "1111" & "0000" & "0010"; -- MUL
---       when "00000011" => controls <= "01" & "0110" & "0011" & "0100" & "1111" & "0000" & "0101"; -- OR
---       when "00000100" => controls <= "01" & "0110" & "0011" & "0100" & "1111" & "0000" & "0110"; -- XOR
-      
---       when "11111111" => controls <= "00" & "0110" & "0011" & "0100" & "1111" & "0000" & "0000"; -- ADDI
---       when "11111110" => controls <= "00" & "0110" & "0011" & "0100" & "1111" & "0000" & "0000"; -- COPY
---       when "11111101" => controls <= "10" & "0110" & "0011" & "0100" & "1111" & "0000" & "1011"; -- TJMP
---       when "11111100" => controls <= "00" & "0110" & "0011" & "0100" & "1111" & "0000" & "0000"; -- JUMP
---       when "11111011" => controls <= "00" & "1110" & "1111" & "0100" & "1111" & "0000" & "0000"; -- LW
---       when "11111010" => controls <= "00" & "1110" & "1111" & "0100" & "1111" & "0000" & "0000"; -- SW
---       when "11111001" => controls <= "00" & "0110" & "0011" & "0100" & "1111" & "0000" & "0000"; -- LI
---       when "11111000" => controls <= "00" & "0110" & "0011" & "0100" & "1111" & "0000" & "0000"; -- SI
---       when others => controls <= "000000000000000000000000";
---     end case;
--- end process;
+aludbufWEn <= controls(25);
+pcWEn <= controls(24);
+memibufWEn <= controls(23);
+memdbufWEn <= controls(22);
+regR0dbufWEn <= controls(21);
+regR1dbufWEn <= controls(20);
 
-mem0WEn <= controls(27);
-reg0WEn <= controls(26);
-alu0WEn <= controls(25);
+muxPCSel <= controls(19);
 
-aludbufWEn <= controls(24);
-pcWEn <= controls(23);
-memibufWEn <= controls(22);
-memdbufWEn <= controls(21);
-regR0dbufWEn <= controls(20);
-regR1dbufWEn <= controls(19);
+muxMemASel <= controls(18);
+muxMemWSel <= controls(17);
 
-muxPCSel <= controls(18);
-
-muxMemASel <= controls(17);
-muxMemWSel <= controls(16);
-
-muxRegA0Sel <= controls(15);
-muxRegA1Sel <= controls(14);
-muxRegAWSel <= controls(13);
-muxRegWDSel <= controls(12);
+muxRegA0Sel <= controls(16);
+muxRegA1Sel <= controls(15);
+muxRegAWSel <= controls(14);
+muxRegWDSel <= controls(13 downto 12);
 
 muxAluASel <= controls(11 downto 10);
 muxAluBSel <= controls(9 downto 8);

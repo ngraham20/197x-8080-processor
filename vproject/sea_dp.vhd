@@ -18,14 +18,13 @@ entity dp is
     muxRegA0Sel,
     muxRegA1Sel,
     muxRegAWSel,
-    muxRegWDSel,
     pcWEn,
     aludbufWEn,
     memibufWEn,
     memdbufWEn,
     regR0dbufWEn,
     regR1dbufWEn : in std_logic;
-    muxAluBSel, muxAluASel : in std_logic_vector(1 downto 0);
+    muxAluBSel, muxAluASel, muxRegWDSel : in std_logic_vector(1 downto 0);
     opcode : out std_logic_vector(7 downto 0);
     aluop : in std_logic_vector(3 downto 0)
   );
@@ -147,9 +146,11 @@ begin
         y       => muxRegA0Bus
     );
 
-    muxRegWD:   mux2 generic map(16) port map(
+    muxRegWD:   mux4 generic map(16) port map(
         d0      => memdbufBus,
         d1      => aludbufBus,
+        d2      => regR0dbufBus,
+        d3      => memibufbus(15 downto 0),
         s       => muxRegWDSel,
         y       => muxregWDBus
     );
