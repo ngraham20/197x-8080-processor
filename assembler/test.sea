@@ -8,9 +8,19 @@ BEGIN
 # start
 
 copi a0 0
-copi b0 1
-copi inc_reg loop5
+copi b0 6
+copi c0 0
+addi a0 2
 :Loop
-add a0 a0 b0
-seq c1 a0 inc_reg
+add c0 c0 b0
+seq c1 a0 24
 fjmp c1 Loop
+copy a0 c0
+subi a0 4
+sub c0 c0 a0
+seq c1 20
+tjmp c1 Skip
+addi a0 1
+:Skip
+xor a1 a0 b0
+l_shift a0 1
