@@ -191,18 +191,15 @@ fn parse_instructions(lines: &Vec<std::result::Result<std::string::String, std::
                     instcode += 0xFD000000;
                     instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
                     instcode += parse_immediate(&tokens[2], &variables, &labels).unwrap() as u32;
-                }
-                // TODO modify this to new idea "TJMP"  => {Ok(0xFD)},
-                // "TJMP" => {
-                //     // opcode: 0xFD
-                //     // test result flag: 0x17
-                //     instcode += 0xFD170000;
-                //     instcode += parse_immediate(&tokens[1], &variables, &labels).unwrap() as u32;
-                // }
-                // "JUMP" => {Ok(0xFC)},
+                },
                 "JUMP" => {
                     instcode += 0xFC000000;
-                    instcode += parse_immediate(&tokens[1], &variables, &labels).unwrap() as u32;
+                    instcode += parse_immediate(&tokens[1], &variables, &labels).unwrap() as u32 * 4;
+                },
+                "TJMP" => {
+                    instcode += 0xFD000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_immediate(&tokens[2], &variables, &labels).unwrap() as u32 * 4;
                 },
                 _ => {}
             };
