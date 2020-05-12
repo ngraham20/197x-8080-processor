@@ -65,7 +65,7 @@ fn parse_lables_pc(lines: &Vec<std::result::Result<std::string::String, std::io:
                     pending_labels.push_back(String::from(&tokens[0][1..]));
                 },
                 _ => {
-                    let pc = ((i - labels.len() - pending_labels.len()) * 4) as u16;
+                    let pc = ((i - labels.len() - pending_labels.len())) as u16;
                     while let Some(label) = pending_labels.pop_front() {
                         labels.insert(label, pc);
                     }
@@ -193,11 +193,16 @@ fn parse_instructions(lines: &Vec<std::result::Result<std::string::String, std::
                     instcode += parse_immediate(&tokens[2], &variables, &labels).unwrap() as u32;
                 },
                 "JUMP" => {
-                    instcode += 0xFC000000;
+                    instcode += 0xE0000000;
                     instcode += parse_immediate(&tokens[1], &variables, &labels).unwrap() as u32 * 4;
                 },
                 "TJMP" => {
-                    instcode += 0xFD000000;
+                    instcode += 0xFC000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_immediate(&tokens[2], &variables, &labels).unwrap() as u32 * 4;
+                },
+                "FJMP" => {
+                    instcode += 0xFB000000;
                     instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
                     instcode += parse_immediate(&tokens[2], &variables, &labels).unwrap() as u32 * 4;
                 },

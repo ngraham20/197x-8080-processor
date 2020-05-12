@@ -1,9 +1,16 @@
+
+# VAR <var> UINT16 <val> 
+var loop5 uint16 5
+var inc_reg reg c0
+
 BEGIN
 
-copi a0 10
-copi a1 10
-seq b0 a0 a1
-tjmp b0 5
-copi a0 20
-seq b1 a0 a1
-tjmp b1 0
+# start
+
+copi a0 0
+copi b0 1
+copi inc_reg loop5
+:Loop
+add a0 a0 b0
+seq c1 a0 inc_reg
+fjmp c1 Loop

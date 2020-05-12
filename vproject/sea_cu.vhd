@@ -44,7 +44,7 @@ signal dotjump  : std_logic;
 type stateType is (resetst, fetch, decode, getab,
   geta, add, sub, mul, andst, orst, xorst, srrst,
   srlst, sltst, seqst, addi, subi, pcinc, pcstor,
-  copy, copi, alu_reg, imm_reg, jump, tjmp);
+  copy, copi, alu_reg, imm_reg, jump, tjmp, fjmp);
 signal state : stateType;
 
 begin
@@ -87,6 +87,7 @@ begin
               when "1110" => state <= subi;   -- a - imm
               when "1101" => state <= copi;   -- copy dst <- imm
               when "1100" => state <= tjmp;   -- tjmp
+              when "1011" => state <= fjmp;   -- fjmp
               when others => state <= fetch;  -- reset
             end case;
         when tjmp =>
@@ -95,6 +96,12 @@ begin
               else
                 state <= fetch;
               end if; 
+        when fjmp =>
+              if (reg0bottombit = '1') then
+                state <= pcinc;
+              else
+                state <= fetch;
+              end if;
         when add => state <= alu_reg;
         when sub => state <= alu_reg;
         when andst => state <= alu_reg;
@@ -145,7 +152,8 @@ begin
       when copi   => controls <= "010" & "000000" & "0" & "00" & "00011" & "0000" & "0000" & "0000"; -- a SEQ b
       
       when jump  => controls <= "000" & "010000" & "1" & "00" & "00000" & "0000" & "0000" & "0000"; -- jump
-      when tjmp  => controls <= "000" & "010000" & regr0bottombit & "00" & "00000" & "0000" & "0000" & "0000"; -- jump
+      when tjmp  => controls <= "000" & "010000" & regr0bottombit & "00" & "00000" & "0000" & "0000" & "0000"; -- tjmp
+      when fjmp  => controls <= "000" & "010000" & (regr0bottombit and '0') & "00" & "00000" & "0000" & "0000" & "0000"; -- fjmp
 
       when alu_reg  => controls <= "010" & "000000" & "0" & "00" & "00001" & "0000" & "0000" & "0000"; -- store result in reg
       when pcinc  => controls <= "000" & "100000" & "0" & "00" & "00000" & "1010" & "0000" & "0000"; -- store pc + 4
