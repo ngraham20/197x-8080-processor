@@ -21,7 +21,7 @@ fn main() {
 fn parsefile(mut variables: &mut Variables, mut labels: &mut Labels) {
     // File hosts must exist in current path before this produces output
     // Consumes the iterator, returns an (Optional) String
-    let lines = read_lines("test.sea");
+    let lines = read_lines("main.sea");
 
     match parse_begin(&lines) {
         Ok(pos) => {
