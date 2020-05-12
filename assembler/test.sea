@@ -7,14 +7,15 @@ copi a3 11
 # ----- SEQ -----
 copi a4 10
 copi a5 10
-seq a4 a5
+seq c0 a4 a5
 
 # ----- SLT -----
 copi a6 10
 copi a7 11
-slt a6 a7
+slt c1 a6 a7
 
 # ----- COPY -----
 copi b0 10
 copi b1 25
 copy b0 b1
+copy b1 b0

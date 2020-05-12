@@ -161,14 +161,21 @@ fn parse_instructions(lines: &Vec<std::result::Result<std::string::String, std::
                 },
                 "SLT" => {
                     instcode += 0x08000000;
-                    instcode+= parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
-                    instcode+= parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
+                    instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
                 
                 },
                 "SEQ" => {
                     instcode += 0x09000000;
-                    instcode+= parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
-                    instcode+= parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
+                    instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
+                },
+                "COPY" => {
+                    instcode += 0x0A000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
                 },
                 "ADDI" => {
                     instcode += 0xFF000000;
@@ -180,15 +187,8 @@ fn parse_instructions(lines: &Vec<std::result::Result<std::string::String, std::
                     instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
                     instcode += parse_immediate(&tokens[2], &variables, &labels).unwrap() as u32;
                 },
-                // MULI 0xFD
-                // DIVI 0xFC
-                "COPY" => {
-                    instcode += 0xFB000000;
-                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
-                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
-                },
                 "COPI" => {
-                    instcode += 0xFA000000;
+                    instcode += 0xFD000000;
                     instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
                     instcode += parse_immediate(&tokens[2], &variables, &labels).unwrap() as u32;
                 }
