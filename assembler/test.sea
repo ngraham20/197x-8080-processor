@@ -7,23 +7,32 @@ BEGIN
 
 # start
 
-copi a0 2           
+copi a0 2
 # a0 = 2
 
-copi b0 2           
+copi b0 2
 # b0 = 2
 
-copi c0 0           
+copi b1 24
+# b1 = 24
+
+copi b2 1
+# b2 = 1
+
+copi b3 20
+# b3 = 20
+
+copi c0 0
 # c0 = 0
 
-addi b0 4           
+addi b0 4
 # b0 = 2 + 4 = 6
 
 :Loop
 add c0 c0 b0
 # c0 = c0 + 6
 
-seq c1 c0 24
+seq c1 c0 b1
 # c1 = 1 IF c0 = 24
 
 fjmp c1 Loop
@@ -38,7 +47,7 @@ subi a0 4
 sub c0 c0 a0
 # c0 = 24 - 20 = 4
 
-seq c2 c0 20
+seq c2 c0 b3
 # c2 = 1 IF c0 = 20
 
 tjmp c2 Skip
@@ -51,5 +60,5 @@ addi a0 1
 xor a1 a0 b0
 # a1 = a0 XOR b0 = ...00010100 XOR ...00000110 = ...00010010 = 18d
 
-l_shift a1 1
+srl a1 b2
 # a1 = ...00100100 = 36d
