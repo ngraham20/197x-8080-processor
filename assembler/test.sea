@@ -1,8 +1,3 @@
-
-# VAR <var> UINT16 <val> 
-var loop5 uint16 5
-var inc_reg reg c0
-
 BEGIN
 
 # start
@@ -30,7 +25,7 @@ addi b0 4
 
 :Loop
 add c0 c0 b0
-# c0 = c0 + 6
+# c0 = c0 + 6 = 6
 
 seq c1 c0 b1
 # c1 = 1 IF c0 = 24
@@ -47,8 +42,8 @@ subi a0 4
 sub c0 c0 a0
 # c0 = 24 - 20 = 4
 
-seq c2 c0 b3
-# c2 = 1 IF c0 = 20
+seq c2 a0 b3
+# c2 = 1 IF a0 = 20
 
 tjmp c2 Skip
 # Jump IF c2 = 1
@@ -60,5 +55,7 @@ addi a0 1
 xor a1 a0 b0
 # a1 = a0 XOR b0 = ...00010100 XOR ...00000110 = ...00010010 = 18d
 
-srl a1 b2
+srl c3 a1 b2
 # a1 = ...00100100 = 36d
+
+copy c4 c3
