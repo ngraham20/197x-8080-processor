@@ -214,7 +214,6 @@ ALU
 |AND|0x01| [r0 && r1] - > r2|0x01|R0|R1|R2|
 
 ### Drawings of Our Processor
-![Intel](https://i.imgur.com/RFGA4nz.gif)
 ![Diagram](https://i.imgur.com/0JsKQLr.png)
 ![Bubble1](https://i.imgur.com/6NDaIox.png)
 ![Bubble2](https://i.imgur.com/jND6io4.png)
