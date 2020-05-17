@@ -21,7 +21,7 @@ fn main() {
 fn parsefile(mut variables: &mut Variables, mut labels: &mut Labels) {
     // File hosts must exist in current path before this produces output
     // Consumes the iterator, returns an (Optional) String
-    let lines = read_lines("test.sea");
+    let lines = read_lines("main.sea");
 
     match parse_begin(&lines) {
         Ok(pos) => {
@@ -65,7 +65,7 @@ fn parse_lables_pc(lines: &Vec<std::result::Result<std::string::String, std::io:
                     pending_labels.push_back(String::from(&tokens[0][1..]));
                 },
                 _ => {
-                    let pc = ((i - labels.len() - pending_labels.len()) * 4) as u16;
+                    let pc = ((i - labels.len() - pending_labels.len())) as u16;
                     while let Some(label) = pending_labels.pop_front() {
                         labels.insert(label, pc);
                     }
@@ -100,61 +100,116 @@ fn parse_variables(lines: & Vec<std::result::Result<std::string::String, std::io
 }
 
 fn parse_instructions(lines: &Vec<std::result::Result<std::string::String, std::io::Error>>, pos: usize, labels: &Labels, variables: &Variables) {
+
+    // [opcode] [src] [tgt] [dst]
+    // [opcode] [src] [imm]
+
+
     for line in lines[pos+1..].iter().filter(|x| &x.as_ref().unwrap()[0..1] != ":" ) {
         let mut instcode: u32 = 0x00;
         if let Ok(instr) = line {
             let upinstr = instr.to_uppercase();
             let tokens: Vec<&str> = upinstr.split(" ").collect();
             match &tokens[0][..] {
-                "COPY" => {
-                    instcode += 0xFE000000;
-                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
-                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
-                },
-                // "TJMP"  => {Ok(0xFD)},
-                "TJMP" => {
-                    // opcode: 0xFD
-                    // test result flag: 0x17
-                    instcode += 0xFD170000;
-                    instcode += parse_immediate(&tokens[1], &variables, &labels).unwrap() as u32;
-                }
-                // "JUMP" => {Ok(0xFC)},
-                "JUMP" => {
-                    instcode += 0xFC000000;
-                    instcode += parse_immediate(&tokens[1], &variables, &labels).unwrap() as u32;
-                }
                 "ADD" => {
                     // instruction code is 0x00
                     instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
                     instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
                     instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
                 },
+                "SUB" => {
+                    instcode += 0x01000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
+                    instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
+                },
+                "MUL" => {
+                    instcode += 0x02000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
+                    instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
+                },
+                "AND" => {
+                    instcode += 0x03000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
+                    instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
+                },
+                "OR" => {
+                    instcode += 0x04000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
+                    instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
+                },
+                "XOR" => {
+                    instcode += 0x05000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
+                    instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
+                },
+                "SRR" => {
+                    instcode += 0x06000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
+                    instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
+                },
+                "SRL" => {
+                    instcode += 0x07000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
+                    instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
+                },
+                "SLT" => {
+                    instcode += 0x08000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
+                    instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
+                
+                },
+                "SEQ" => {
+                    instcode += 0x09000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
+                    instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
+                },
+                "COPY" => {
+                    instcode += 0x0A000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
+                },
                 "ADDI" => {
                     instcode += 0xFF000000;
                     instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
                     instcode += parse_immediate(&tokens[2], &variables, &labels).unwrap() as u32;
                 },
-                "SLT" => {
-                    instcode +=  0x03000000;
-                    instcode+= parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
-                    instcode+= parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
-                
+                "SUBI" => {
+                    instcode += 0xFE000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_immediate(&tokens[2], &variables, &labels).unwrap() as u32;
                 },
-                 "SEQ" => {
-                     instcode += 0x02000000;
-                     instcode+= parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
-                     instcode+= parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16, 2);
-                    },
-                 "AND" => {
-                    instcode += 0x01000000;
-                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16,4);
-                    instcode += parse_register(&tokens[2], &variables).unwrap() as u32 * u32::pow(16,2);
-                    instcode += parse_register(&tokens[3], &variables).unwrap() as u32;
+                "COPI" => {
+                    instcode += 0xFD000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_immediate(&tokens[2], &variables, &labels).unwrap() as u32;
+                },
+                "JUMP" => {
+                    instcode += 0xE0000000;
+                    instcode += parse_immediate(&tokens[1], &variables, &labels).unwrap() as u32 * 4;
+                },
+                "TJMP" => {
+                    instcode += 0xFC000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_immediate(&tokens[2], &variables, &labels).unwrap() as u32 * 4;
+                },
+                "FJMP" => {
+                    instcode += 0xFB000000;
+                    instcode += parse_register(&tokens[1], &variables).unwrap() as u32 * u32::pow(16, 4);
+                    instcode += parse_immediate(&tokens[2], &variables, &labels).unwrap() as u32 * 4;
                 },
                 _ => {}
             };
         }
-        println!("{:08X}", instcode);
+        println!("{:08x}", instcode);
     }
 }
 
@@ -168,11 +223,13 @@ fn parse_register<'a>(token: &'a str, variables: &'a Variables) -> std::result::
     } else {
         bytetoken = Ok(token.as_bytes());
     }
+    let registeroffset: u8 = 0x20;
     let register = match bytetoken.unwrap()[0] as char {
-        'R' => Ok(0x00),
-        'A' => Ok(0x02),
-        'B' => Ok(0x18),
-        'C' => Ok(0x34),
+        'R' => Ok(0x00 + registeroffset),
+        'A' => Ok(0x00 + registeroffset),
+        'B' => Ok(0x08 + registeroffset),
+        'C' => Ok(0x10 + registeroffset),
+        'D' => Ok(0x18 + registeroffset),
         _ =>   Err("Invalid register, you scrub.")
     };
 
@@ -184,7 +241,7 @@ fn parse_register<'a>(token: &'a str, variables: &'a Variables) -> std::result::
         "4" => Ok(0x04),
         "5" => Ok(0x05),
         "6" => Ok(0x06),
-        "7" => Ok(0x06),
+        "7" => Ok(0x07),
         _ => Err("Invalid offset, you scrub.")
     };
 
