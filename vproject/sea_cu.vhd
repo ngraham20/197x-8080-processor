@@ -75,6 +75,8 @@ begin
             when "0000" => state <= add;      -- a = a + b
             when "0001" => state <= sub;      -- a = a - b
             --TODO: mul 0010
+
+            -- opcode dst src tgt
             when "0011" => state <= andst;      -- a = a AND b
             when "0100" => state <= orst;       -- a = a OR b
             when "0101" => state <= xorst;      -- a = a XOR b
