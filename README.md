@@ -183,10 +183,62 @@ Just another SEA-language
 | 0x08 | y <= a SLT b|
 | 0x09 | y <= a SEQ b|
 
-### Drawings of Our Processor
-![Diagram](https://i.imgur.com/0JsKQLr.png)
-![Bubble1](https://i.imgur.com/6NDaIox.png)
-![Bubble2](https://i.imgur.com/jND6io4.png)
+### Control Unit States
+|State| Control Signal Location |
+|-----|------|
+|mem0WEn|controls(28)|
+|reg0WEn|controls(27)|
+|alu0WEn|controls(26)|
+|aludbufWEn|controls(25)|
+|pcWEn|controls(24)|
+|memibufWEn|controls(23)|
+|memdbufWEn|controls(22);|
+|regR0dbufWEn|controls(21);|
+|regR1dbufWEn|controls(20);|
+|muxPCSel|controls(19);|
+|muxMemASel|controls(18);|
+|muxMemWSel|controls(17);|
+|muxRegA0Sel|controls(16);|
+|muxRegA1Sel|controls(15);|
+|muxRegAWSel|controls(14);|
+|muxRegWDSel|controls(13 downto 12);|
+|muxAluASel|controls(11 downto 10);|
+|muxAluBSel|controls(9 downto 8);|
+|flagOffset|controls(7 downto 4);|
+|aluOp|controls(3 downto 0);|
+
+### Control Signals
+| Signal | Location | Description |
+|--------|----------|-------------|
+|fetch|"000" & "001000" & "0" & "00" & "00000" & "0000" & "0000" & "0000"|Get instruction|
+|decode|"000" & "000000" & "0" & "00" & "00000" & "0000" & "0000" & "0000"|Decode instruction|
+|getab|"000" & "000011" & "0" & "00" & "00000" & "0000" & "0000" & "0000"|Retrieve A and B from register|
+|geta|"000" & "000010" & "0" & "00" & "10000" & "0000" & "0000" & "0000"|Retrieve A from register|
+|add|"000" & "100000" & "0" & "00" & "00000" & "0000" & "0000" & "0000"|aluop for a + b|
+|sub|"000" & "100000" & "0" & "00" & "00000" & "0000" & "0000" & "0001"|aluop for a - b|
+|andst|"000" & "100000" & "0" & "00" & "00000" & "0000" & "0000" & "0011"|aluop for a AND b|
+|orst|"000" & "100000" & "0" & "00" & "00000" & "0000" & "0000" & "0100"|aluop for a OR b|
+|xorst|"000" & "100000" & "0" & "00" & "00000" & "0000" & "0000" & "0101"|aluop for a XOR b|
+|srrst|"000" & "100000" & "0" & "00" & "00000" & "0000" & "0000" & "0110"|aluop for a SRR b|
+|srlst|"000" & "100000" & "0" & "00" & "00000" & "0000" & "0000" & "0111"|aluop for a SRL b|
+|sltst|"000" & "100000" & "0" & "00" & "00000" & "0000" & "0000" & "1000"|aluop for a SLT b|
+|seqst|"000" & "100000" & "0" & "00" & "00000" & "0000" & "0000" & "1001"|aluop for a SEQ b|
+|addi|"000" & "100000" & "0" & "00" & "10000" & "0001" & "0000" & "0000"|aluop for a + imm|
+|subi|"000" & "100000" & "0" & "00" & "10000" & "0001" & "0000" & "0001"|aluop for a - imm|
+|copy|"010" & "000000" & "0" & "00" & "00010" & "0000" & "0000" & "0000"|aluop for a SEQ b|
+|copi|"010" & "000000" & "0" & "00" & "00011" & "0000" & "0000" & "0000"|aluop for a SEQ b|
+|jump|"000" & "010000" & "1" & "00" & "00000" & "0000" & "0000" & "0000"|jump to imm|
+|tjmp|"000" & "010000" & regr0bottombit & "00" & "00000" & "0000" & "0000" & "0000"|jump to imm if the last bit of the retrieved register is 1|
+|fjmp|"000" & "010000" & inverseBottomBit & "00" & "00000" & "0000" & "0000" & "0000"|jump to imm if the last bit of the retrieved register is 0|
+|alu_reg|"010" & "000000" & "0" & "00" & "00001" & "0000" & "0000" & "0000"|store result in the alu to the regsiter|
+|pcinc|"000" & "100000" & "0" & "00" & "00000" & "1010" & "0000" & "0000"|send the pc into the alu, and add 4|
+|pcstor|"000" & "010000" & "0" & "00" & "00000" & "0000" & "0000" & "0000"|store the new pc into the pc| 
+
+### Finite State Machine Diagram
+![FSM](fsm.png)
+
+### Simplified Processor Diagram
+![Diagram](processor-diagram.png)
 
 
 # UPDATE FOR JUDE
@@ -196,7 +248,9 @@ Just another SEA-language
 * Updated main.sea to be that of FP4. This is a commented, complete, and functional program
 * Updated the registers to be accurate to the machine
 * Updated the instruction set to be accurate to the machine
-
+* Added better FSM
+* Added State Machine table
+* Added Control Signals
 
 
 
