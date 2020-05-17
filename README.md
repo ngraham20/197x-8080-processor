@@ -213,9 +213,10 @@ ALU
 |SEQ|0x02| [r0==r1] -> t0|0x02|R0|R1|0x00|
 |AND|0x01| [r0 && r1] - > r2|0x01|R0|R1|R2|
 
-### Syntax
-| Keyword | Description |
-|---------|-------------|
+### Drawings of Our Processor
+![Diagram](https://i.imgur.com/0JsKQLr.png)
+![Bubble1](https://i.imgur.com/6NDaIox.png)
+![Bubble2](https://i.imgur.com/jND6io4.png)
 
 
 
