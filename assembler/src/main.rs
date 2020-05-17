@@ -2,6 +2,7 @@ use std::fs::File;
 use std::io::{self, BufRead};
 use std::collections::{HashMap, VecDeque};
 
+/// The different types supported by the assembly language
 enum Variable {
     Register(String),
     Uint16(u16),
@@ -18,6 +19,12 @@ fn main() {
     parsefile(&mut variables, &mut labels);
 }
 
+/// Parses the file
+/// 
+/// # Arguments
+/// 
+/// * `variables` - The hashmap to store and retrieve variables from
+/// * `labels` - The hashmap to store and retrieve labels from
 fn parsefile(mut variables: &mut Variables, mut labels: &mut Labels) {
     // File hosts must exist in current path before this produces output
     // Consumes the iterator, returns an (Optional) String
@@ -37,6 +44,11 @@ fn parsefile(mut variables: &mut Variables, mut labels: &mut Labels) {
     }
 }
 
+/// Reads the lines from the file into a vector
+/// 
+/// # Arguments
+/// 
+/// * `path` - The file to open
 fn read_lines(path: &str) -> Vec<std::result::Result<String, std::io::Error>> {
 
     let file = File::open(path).unwrap();
@@ -45,6 +57,11 @@ fn read_lines(path: &str) -> Vec<std::result::Result<String, std::io::Error>> {
     buffered.lines().filter(|x| x.as_ref().unwrap() != "" && &x.as_ref().unwrap()[0..1] != "#" ).collect()
 }
 
+/// Parses the file for the keyword *BEGIN*
+/// 
+/// # Arguments
+/// 
+/// * `lines` - The lines to parse
 fn parse_begin(lines: &Vec<std::result::Result<std::string::String, std::io::Error>>) -> std::result::Result<usize, &str> {
     let pos = lines.iter().position(|x| x.as_ref().unwrap().to_uppercase() == "BEGIN");
 
@@ -54,6 +71,13 @@ fn parse_begin(lines: &Vec<std::result::Result<std::string::String, std::io::Err
     }
 }
 
+/// Parses the file for labels
+/// 
+/// # Arguments
+/// 
+/// * `lines` - The lines to parse
+/// * `pos` - The position to end parsing
+/// * `labels` - The hashmap to insert the labels into
 fn parse_lables_pc(lines: &Vec<std::result::Result<std::string::String, std::io::Error>>, pos: usize, labels: &mut Labels) {
     let mut pending_labels: VecDeque<String> = VecDeque::new();
     for (i, line) in lines[pos+1..].iter().enumerate() {
@@ -75,6 +99,13 @@ fn parse_lables_pc(lines: &Vec<std::result::Result<std::string::String, std::io:
     }
 }
 
+/// Parses the file for variables
+/// 
+/// # Arguments
+/// 
+/// * `lines` - The lines to parse
+/// * `pos` - The position to start parsing
+/// * `variables` - The hashmap to insert the variables into
 fn parse_variables(lines: & Vec<std::result::Result<std::string::String, std::io::Error>>, pos: usize, variables: &mut Variables) {
     for line in &lines[..pos] {
         if let Ok(instr) = line {
@@ -99,11 +130,17 @@ fn parse_variables(lines: & Vec<std::result::Result<std::string::String, std::io
     }
 }
 
+/// Parses the line for the whole instruction
+/// 
+/// # Arguments
+/// 
+/// * `lines` - The vector of lines to parse
+/// * `pos` - The line number to start from
+/// * `labels` - A hashmap of labels
+/// * `variables` - A hashmap of variables
 fn parse_instructions(lines: &Vec<std::result::Result<std::string::String, std::io::Error>>, pos: usize, labels: &Labels, variables: &Variables) {
-
     // [opcode] [src] [tgt] [dst]
     // [opcode] [src] [imm]
-
 
     for line in lines[pos+1..].iter().filter(|x| &x.as_ref().unwrap()[0..1] != ":" ) {
         let mut instcode: u32 = 0x00;
@@ -213,6 +250,12 @@ fn parse_instructions(lines: &Vec<std::result::Result<std::string::String, std::
     }
 }
 
+/// Parses the specified token for the correct register
+/// 
+/// # Arguments
+/// 
+/// * `token` - The token to parse
+/// * `variables` - The hashmap of variables that the token could be specifying
 fn parse_register<'a>(token: &'a str, variables: &'a Variables) -> std::result::Result<u8, &'a str> {
     let bytetoken: Result<&[u8], &str>;
     if let Some(var) = variables.get(token) {
@@ -253,6 +296,12 @@ fn parse_register<'a>(token: &'a str, variables: &'a Variables) -> std::result::
     }
 }
 
+/// Parses the specified token for an immediate value
+/// 
+/// # Arguments
+/// 
+/// * `variables` - The hashmap of variables that the token could be specifying
+/// * `labels` - The hashmap of labels that the token could be specifying
 fn parse_immediate<'a>(token: &'a str, variables: &'a Variables, labels: &'a Labels) -> std::result::Result<u16, &'a str> {
     let result: Result<u16, &str>;
     if let Some(var) = variables.get(token) {

@@ -1,2 +1,4 @@
 target
 *.lock
+.target
+!.target/doc/assembler
