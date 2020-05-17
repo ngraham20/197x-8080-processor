@@ -140,78 +140,48 @@ Just another SEA-language
 
 ## General Purpose 16-Bit Processor
 
-```
-R-Type
-I-Type
-
-SYS
-| syscall
-
-MEM
-| copy      # 
-| lw        #
-| sw        #
-| li        #
-| si        #
-| la        #
-| sa        #
-
-BRANCH
-| bneq      #
-| blt       #
-
-JMP
-| jump      #
-| tjmp      # True Jump
-| fjmp      # False Jump
-
-ALU
-| add       # Add Register
-| addi      # Add Immediate
-| sub       #
-| subi      #
-| mult      #
-| multi     #
-| div       #
-| divi      #
-| slt       # Set Less Than
-| seq       # Set Equal
-| and       # Logical AND
-| or        #
-| not       #
-| xor       #
-| slr       #
-| srr       #
-```
-
 ### Registers
 | Reg | Hex | Name | Description |
 |:----|:----|:-----|-------------|
-|R0|0x00|Zero|The value 0|
-|R1|0x01|One|The value 1|
-|R2-R17|0x02-0x11|A0-A15| General purpose registers|
-|R18-R33|0x12-0x21|B0-B15| General purpose registers|
-|R34-R49|0x22-0x31|C0-C15| General purpose registers|
-|R50|0x16|IP|Instruction Pointer|
-|R51|0x17|F|Flag register|
-
-### Flag Register
-| Offset | Name | Description |
-|--------|------|-------------|
-|0x00|Test Result| Result of the most recent comparison|
+|R0-R31|0x00-0x1F|I0-I31| Instruction registers|
+|R0-R7|0x20-0x28|A0-A7| General purpose registers|
+|R8-R15|0x28-0x2A|B0-B7| General purpose registers|
+|R16-R23|0x30-0x37|C0-C7| General purpose registers|
+|R24-R31|0x38-0x3F|D0-D7| General purpose registers|
 
 
 ### Instruction Set
-| Instr | Opcode | Description | B1 | B2 | B3 | B4 |
-|:-----:|:------:|:------------|:--:|:--:|:--:|:--:|
-|COPY |0xFE| Copy r0 -> r1|0xFE|R0|R1|0x00|
-|TJMP|0xFD| Jump to LABEL if t0 |0xFD|0x00|ADDR:0|ADDR:1|
-|JUMP|0xFC| Jump to LABEL | 0xFC|0x00|ADDR:0|ADDR:1|
-|ADD|0x00| [r0 + r1] -> r2|0x00|R0|R1|R2|
-|ADDI|0xFF|[r0 + IMM] -> r0|0xFF|R0|IMM:0|IMM:1|
-|SLT|0x03| [r0 \< r1] -> t0| 0x03|R0|R1|0x00|
-|SEQ|0x02| [r0==r1] -> t0|0x02|R0|R1|0x00|
-|AND|0x01| [r0 && r1] - > r2|0x01|R0|R1|R2|
+| Instr | Opcode | Description |
+|:-----:|:------:|:------------|
+|ADD | 0x00 | dst <= src + tgt |
+|SUB | 0x01 | dst <= src - tgt |
+|AND | 0x03 | dst <= src AND tgt |
+|OR  | 0x04 | dst <= src OR tgt |
+|XOR | 0x05 | dst <= src XOR tgt |
+|SRR | 0x06 | dst <= src SRR tgt |
+|SRL | 0x07 | dst <= src SRL tgt |
+|SLT | 0x08 | dst <= src SLT tgt |
+|SEQ | 0x09 | dst <= src SEQ tgt |
+|COPY| 0x0A | dst <= src |
+|ADDI| 0xFF | dst <= dst + imm |
+|SUBI| 0xFE | dst <= dst - imm |
+|COPI| 0xFD | dst <= imm |
+|JUMP| 0xE0 | jump to imm |
+|TJMP| 0xFC | jump to imm if dst == 1 |
+|FJMP| 0xFB | jump to imm if dst == 0 |
+
+### ALU Operations
+|Opcode|Description|
+|:----:|-----------|
+| 0x00 | y <= a + b|
+| 0x01 | y <= a - b|
+| 0x03 | y <= a AND b|
+| 0x04 | y <= a OR b|
+| 0x05 | y <= a XOR b|
+| 0x06 | y <= a r_shift b|
+| 0x07 | y <= a l_shift b|
+| 0x08 | y <= a SLT b|
+| 0x09 | y <= a SEQ b|
 
 ### Drawings of Our Processor
 ![Diagram](https://i.imgur.com/0JsKQLr.png)
@@ -222,7 +192,10 @@ ALU
 # UPDATE FOR JUDE
 
 * Docstrings added to rust assembly file
-
+* Added memfile.dat under the assembly folder
+* Updated main.sea to be that of FP4. This is a commented, complete, and functional program
+* Updated the registers to be accurate to the machine
+* Updated the instruction set to be accurate to the machine
 
 
 
