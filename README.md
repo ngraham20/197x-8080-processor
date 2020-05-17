@@ -219,6 +219,14 @@ ALU
 ![Bubble2](https://i.imgur.com/jND6io4.png)
 
 
+# UPDATE FOR JUDE
+
+* Docstrings added to rust assembly file
+
+
+
+
+
 
 
 
